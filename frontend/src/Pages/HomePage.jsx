@@ -1,6 +1,6 @@
 import { faCar, faChildren, faGraduationCap, faHome, faBullhorn, faUserCheck, faUserCircle, faStar, faSchoolCircleCheck, faBookAtlas, faTools, faSchool, faChildReaching, faNewspaper, faCarSide, faFileAlt } from "@fortawesome/free-solid-svg-icons"
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Link, Outlet, useNavigate } from "react-router-dom"
+import { NavLink, Link, Outlet, useNavigate } from "react-router-dom"
 import { animate, motion } from "framer-motion"
 import { ImageSlider } from "../components/Media"
 import { useEffect, useState } from "react"
@@ -53,33 +53,109 @@ export default function HomePage() {
 }
 
 
-function Headlinks({sel, click, user}){
+function Headlinks({ user }) {
+  const links = [
+    {
+      link: "/app",
+      name: "Home",
+      icon: faHome,
+      end: true,
+    },
+    {
+      link: "/app/blog",
+      name: "Posts",
+      icon: faNewspaper,
+    },
+    {
+      link: "/app/tour",
+      name: "Virtual Tour",
+      icon: faCar,
+    },
+    {
+      link: "/app/academics",
+      name: "Academics",
+      icon: faChildren,
+    },
+    {
+      link: "/app/user",
+      name: "Portal",
+      icon: faUserCircle,
+    },
+  ];
 
-    const [selc, setSelc] = useState("");
+  return (
+    <header className="sticky top-0 z-40 w-full border-b border-white/10 bg-slate-800/95 shadow-lg backdrop-blur">
+      <div className="mx-auto max-w-7xl">
+        
+        {/* Navigation */}
+        <nav
+          className="
+            flex items-center gap-1 overflow-x-auto px-2 py-2
+            scrollbar-hide
+            md:justify-center md:gap-2 md:px-4
+          "
+        >
+          {links.map((item) => (
+            <NavLink
+              key={item.name}
+              to={item.link}
+              end={item.end}
+              className={({ isActive }) =>
+                `
+                group relative flex shrink-0 items-center justify-center gap-2
+                rounded-lg px-3 py-2 text-sm font-semibold
+                transition-all duration-200
+                focus:outline-none focus:ring-2 focus:ring-sky-400
 
-    const Links = [
-        {link: "/app", name: "Home", icon: faHome},
-        {link: "/app/blog", name: "Posts", icon: faNewspaper},
-        {link: "/app/tour", name: "Virtual Tour", icon: faCar},
-        {link: "/app/academics", name: "Academics", icon: faChildren},
-        {link: "/app/user", name: "Portal", icon: faUserCircle}
-    ]
+                md:min-w-[100px]
 
-    return <div className="px-2 py-2 bg-slate-600">
-        <nav className="flex flex-row items-center gap-1 md:gap-4 md:justify-center justify-between">
-        {Links.map((item) => (
-            <Link onClick={() => setSelc(item.name)}
-             className={`p-1 ${item.name === selc ? "border-b-2 border-sky-500" : ""} font-poppins rounded-sm text-gray-700 rounded-sm shadow-lg font-bold gap-1 font-poppins flex md:flex-row flex-col md:gap-2 items-center text-white `} 
-                to={item.link}>
-                <FontAwesomeIcon className="font-bold text-[12px] md:text-xl" icon={item.icon}/>
-                <span className=" md:text-md text-[9px]">{item.name}</span>
-            </Link>
-        ))}
+                ${
+                  isActive
+                    ? "bg-sky-500 text-white shadow-md shadow-sky-900/30"
+                    : "text-slate-200 hover:bg-white/10 hover:text-white"
+                }
+                `
+              }
+            >
+              <FontAwesomeIcon
+                icon={item.icon}
+                className="text-sm transition-transform duration-200 group-hover:scale-110 md:text-base"
+              />
+
+              <span className="whitespace-nowrap text-xs sm:text-sm">
+                {item.name}
+              </span>
+
+              {/* Desktop active indicator */}
+              <span className="absolute bottom-0 left-1/2 hidden h-[2px] w-0 -translate-x-1/2 bg-sky-300 transition-all group-hover:w-1/2 md:block" />
+            </NavLink>
+          ))}
         </nav>
 
-        <h4 className="p-1 text-sm font-lato text-amber-200 font-semibold">Welcome Back, {user?.fullname || ""}</h4>
-    </div>
+        {/* Welcome section */}
+        <div className="flex items-center justify-between border-t border-white/10 px-3 py-2 md:px-5">
+          <div className="flex min-w-0 items-center gap-2">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-amber-400 text-slate-800">
+              <FontAwesomeIcon icon={faUserCircle} />
+            </div>
+
+            <h4 className="truncate font-lato text-xs font-semibold text-amber-200 sm:text-sm">
+              Welcome back,{" "}
+              <span className="text-white">
+                {user?.fullname || "User"}
+              </span>
+            </h4>
+          </div>
+
+          <span className="hidden text-xs text-slate-400 sm:block">
+            School Portal
+          </span>
+        </div>
+      </div>
+    </header>
+  );
 }
+
 
 export {Headlinks}
 
