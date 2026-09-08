@@ -1,0 +1,87 @@
+#root {
+  max-width: 1380px;
+}
+
+.header{
+  position: fixed;
+  padding: 8pt 10pt;
+  left: 0px; right: 0px;
+  top: 0px;
+}
+
+*{
+    font-family: 'montserrat', sans-serif, 'Times New Roman', Times, serif;
+    scrollbar-width: none;
+}
+.font-a1{
+  font-family: 'roboto', sans-serif;
+  background: linear-gradient(90deg, rgb(0, 0, 0) rgb(28, 28, 103) rgb(78, 10, 10));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+/*
+available fonts
+    lato, montserrat, roboto, poppins
+*/
+.font-serrat{
+  font-family: 'montserrat', 'Courier New', Courier, monospace;
+}
+.font-lato{
+  font-family: 'lato', 'Times New Roman', Times, serif;
+}
+.font-poppins{
+  font-family: 'poppins', 'Times New Roman', Times, serif;
+}
+.font-roboto{
+  font-family: 'roboto', 'Times New Roman', Times, serif;
+}
+
+.paper {
+  width: 120px;
+  height: 400px;
+  border-radius: 3px;
+  background: #1b462f;
+  color: white;
+}
+
+
+
+@media print {
+
+    body {
+        background: rgb(183, 177, 177) !important;
+    }
+
+    body * {
+        visibility: hidden;
+    }
+
+    #result-pin-sheet,
+    #result-pin-sheet * {
+        visibility: visible;
+    }
+
+    #result-pin-sheet {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 10mm;
+        display: grid !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 8px !important;
+    }
+
+    .result-pin-card {
+        break-inside: avoid;
+        page-break-inside: avoid;
+        box-shadow: none !important;
+    }
+
+    @page {
+        size: A4;
+        margin: 8mm;
+    }
+}
