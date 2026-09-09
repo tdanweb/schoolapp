@@ -41,6 +41,7 @@ import ManagePosts from "./Users/Poster"
 import StudentAttendance from "./Users/Student/Attendance"
 import Inbox from "./Users/Inbox"
 import { ParentStudentProfile } from "./Users/Parent-Student-Profile"
+import { Timetable } from "./Users/UnderDevCompo"
 
 
 
@@ -106,6 +107,7 @@ function App() {
               <Route path="staff-roles" element={<SetStaffRoles/>}/>
               <Route path="stu-reg" element={<StudentRegistrationForm/>}/>
               <Route path="staff-list" element={<StaffList/>}/>
+              <Route path="timetable" element={<Timetable/>}/>
               <Route path="manage-students" element={<ProfileView/>}/>
               <Route path="updates" element={<Updates/>}/>
               <Route path="finance" element={<ManageFee/>}/>

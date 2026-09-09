@@ -13,7 +13,7 @@ import upload2, {cloudinary} from "../cloudinaryMedia.js";
 import User from "../models/User.js";
 import Student from "../models/Student.js";
 import { getStudentForWork } from "../controllers/UserControls.js";
-import { recordAttendanceInBulk } from "../controllers/Result&AttendanceControllers.js";
+import { getOneStudentResult, recordAttendanceInBulk } from "../controllers/Result&AttendanceControllers.js";
 import Applicant from "../models/Applicant.js";
 
 
@@ -293,5 +293,8 @@ router.post(
 //results/scores route
 router.post("/students/attd", recordAttendanceInBulk)
 
+
+//getting one results
+router.get("/student/result", getOneStudentResult);
 
 export default router;

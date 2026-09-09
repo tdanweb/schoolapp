@@ -10,9 +10,11 @@ import {
     FaInfoCircle, 
     FaCoins, 
     FaCalendarDay,
-    FaExclamationTriangle
+    FaExclamationTriangle,
+    FaCheckDouble
 } from "react-icons/fa";
 import { naira } from "../../staticFiles";
+import UploadAdditionalRecords from "./AddRecUploads";
 
 export default function StudentLIST() {
     const [classId, setClassId] = useState("");
@@ -22,12 +24,16 @@ export default function StudentLIST() {
     const [loading, setLoading] = useState(false);
     const [view, setView] = useState("blank");
     const [currentList, setCurrentList] = useState([]);
+    const [prevAddRecList, setPrevAddRecList] = useState([]);
 
-    const id = "SCH0001"; // Default Staff/User ID
+   // const id = "SCH0001"; // Default Staff/User ID
 
     async function getRoles() {
+        const user = JSON.parse(localStorage.getItem("logged-user")).user || ""
+
         try {
-            const res = await axios.get(`${mainApi}/user/staff/roles/${id}`);
+            const res = await axios.get(`${mainApi}/user/staff/roles/${user}`);
+      //      console.log(res.data)
             setStaff(res.data.staff);
             if (res.data.classes) {
                 setClazz(res.data.classes);
@@ -49,8 +55,11 @@ export default function StudentLIST() {
         try {
             const api3 = `${mainApi}/students/work/${classId}`;
             const res = await axios.get(api3);
+            // console.log(res.data);
+
             setCurrentList(res.data.students || []);
             setAttdList(res.data.attendanceRecords || []);
+            setPrevAddRecList(res.data.additionalRecords || [])
             setView("attd");
         } catch (error) {
             alert(error.response?.data?.msg || "Network Error!");
@@ -66,7 +75,7 @@ export default function StudentLIST() {
                 <div className="flex flex-col md:flex-row justify-between md:items-center gap-4">
                     <div>
                         <span className="text-xs font-semibold tracking-wider text-indigo-400 uppercase bg-indigo-950/80 px-3 py-1 rounded-full border border-indigo-800/50">
-                            Staff Portal • {id}
+                            Staff Portal •
                         </span>
                         <h1 className="text-2xl font-bold mt-2">Student & Class Management</h1>
                         <p className="text-slate-400 text-sm mt-1 max-w-2xl">
@@ -124,6 +133,12 @@ export default function StudentLIST() {
                     >
                         <FaListUl /> Class Roster & Fees
                     </button>
+                    <button 
+                        onClick={() => setView("add-recs")}
+                        className={`flex items-center gap-2 pb-3 px-2 text-sm font-semibold border-b-2 transition-all cursor-pointer ${view === "add-recs" ? "border-indigo-600 text-indigo-600" : "border-transparent text-slate-500 hover:text-slate-800"}`}
+                    >
+                        <FaCheckDouble /> Student Scores
+                    </button>
                 </div>
             )}
 
@@ -132,6 +147,10 @@ export default function StudentLIST() {
                 {view === "blank" && <BlankView key="blank" />}
                 {view === "list" && <ViewList key="list" list={currentList} />}
                 {view === "attd" && <TakeAttendance key="attd" prevList={attdList} classId={classId} list={currentList} />}
+                {
+                //view === "add-recs" && <UploadAdditionalRecords key="add-recs" 
+                view === "add-recs" && <UploadAdditionalRecords key="add-recs" list={currentList} classId={classId} regNo={staff?.regNo ||  ""} prevList={prevAddRecList}/>
+                }
             </AnimatePresence>
         </div>
     );

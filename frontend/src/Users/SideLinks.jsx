@@ -23,6 +23,7 @@ import {
   FaUserCheck,
   FaKey,
   FaTablet,
+  FaList,
 } from "react-icons/fa";
 
 export function AllSideBarLinks({
@@ -84,6 +85,27 @@ export function AllSideBarLinks({
         <SideLink name="Attendance" abb="attendance" icon={<FaHistory size={18} />} url="/app/user/attendance" />
       </div>
     );
+  }
+
+  /*
+  * REGULAR STAFF, ALL TAKEN AS TEACHING FOR NOW
+   */
+
+  if(isStaff){
+    return(
+      <>
+         <SideLink name="Home" abb="home" icon={<FaHome size={18} />} url="/app/user/home" />
+         <SideLink name="Upload Results" abb="results" icon={<FaClipboardCheck size={18} />} url="/app/user/results" />
+         <SideLink name="Class List" abb="list" icon={<FaUsers size={18} />} url="/app/user/stu-list" />
+         <SideLink name="My Timetable" abb="list" icon={<FaList size={18} />} url="/app/user/timetable" />
+         {permissions.canManageStudents &&
+         <>
+         <SideLink name="Manage Students" abb="stu-m" icon={<FaUserEdit size={18} />} url="/app/user/manage-students" />  
+         <SideLink name="Enrol Students" abb="stu" icon={<FaUserFriends size={18} />} url="/app/user/stu-reg" />
+         </>
+         }
+      </>
+    )
   }
 
   /*

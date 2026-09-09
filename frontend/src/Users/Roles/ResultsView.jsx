@@ -837,6 +837,19 @@ function ResultPage() {
 
         // fetch result from backend here later
         console.log("fetching results......");
+
+        const url = `${mainApi}/student/result?${params.toString()}`
+        //fetching bock
+        try {
+          const res = await axios.get(url)
+          console.log(res.data)
+        } catch (error) {
+          if(error.response){
+            console.log(error.response.data)
+          } else{
+            alert("Network Error... Try Again Later")
+          }
+        }  
     }
 
 async function getSetting() {

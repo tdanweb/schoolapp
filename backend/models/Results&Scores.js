@@ -34,41 +34,76 @@ export const PinSchema = new mongoose.Schema({
 
 
 //additionals to students results
-
 const additionalSchema = new mongoose.Schema(
-{
-    _id: {type: String, unique: true, required: true},
-    admissionNo: { type: mongoose.Schema.Types.ObjectId, ref: "Student"},
-    userID: {type: String}, //userID - admissionNo
-    term: {type: String,  required: true},
-    session: {type: String, required: true},
-    teacherComment: {text: String, signature: String},
-    principalComment: {text: String, signature: String},
-    generalComment: String,
-    //psyche sores
-    psychoScores: {
-        punctuality: String, //grade A - D
-        neatness: String,
-        handwriting: String,
-        sports: String,
-        creativity: String,
-        leadership: String
+  {
+    _id: {
+      type: String,
+      unique: true,
+      required: true,
     },
-    //affective
-    affectiveScores: {
-        attentiveness: String,
-        cooperation: String,
-        honesty: String,
-        responsibility: String,
-        politeness: String,
-        self_control: String
-    },
-    //if promoted
-    promotion: {type: String, default: "NIL"},
 
-}, {
-    timestamps: true
-})
+    admissionNo: {
+      type: String,
+      required: true,
+    },
+
+    userID: {
+      type: String,
+    },
+
+    term: {
+      type: String,
+      required: true,
+    },
+
+    session: {
+      type: String,
+      required: true,
+    },
+    classId: {
+        type: String,
+        required: true
+    },
+    teacherComment: {
+      text: String,
+      signature: String,
+    },
+
+    principalComment: {
+      text: String,
+      signature: String,
+    },
+
+    generalComment: String,
+
+    psychoScores: {
+      punctuality: String,
+      neatness: String,
+      handwriting: String,
+      sports: String,
+      creativity: String,
+      leadership: String,
+    },
+
+    affectiveScores: {
+      attentiveness: String,
+      cooperation: String,
+      honesty: String,
+      responsibility: String,
+      politeness: String,
+      self_control: String,
+    },
+
+    promotion: {
+      type: String,
+      default: "NIL",
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
 
 const AdditionalRecords = new mongoose.model("AdditionalRecord", additionalSchema);
 const Attendance = new mongoose.model("Attendance", attendanceSchema)

@@ -1,5 +1,7 @@
 import jwt from "jsonwebtoken";
 import express from "express";
+import User from "../models/User.js";
+
 
 const authMiddleware = (req, res, next) => {
     const authHeader = req.headers.authorization;
@@ -57,6 +59,17 @@ export const staffAuth = async (req, res, next) => {
        
        req.userId = decoded;
        req.useLastTerm = useLts;
+
+       const user = decoded.thisUser;
+       const isStaff = user === "staff" || user === "admin2" || user === "admin" || user === "chief-admin";
+       const userCheck = await User.findOne({_id: decoded.id, approved: true});
+
+       if(!isStaff && !userCheck){
+        return res.status(403).json({
+            msg: "Access Denied, You can contact School Admin for more details..."
+        })
+       }
+
        next();
     } catch (error) {
         res.status(401).json({

@@ -274,7 +274,7 @@ export default function UserPortals() {
         if(data.staff){
           setRoles(theUser.data.staff.specialRoles)
         }
-        return;
+   //     return;
 
         setCurrentUser(data.staff || data.student || data.parent)
 

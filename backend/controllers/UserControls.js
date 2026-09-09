@@ -5,7 +5,7 @@ import cookieParser from "cookie-parser";
 import { Teacher } from "../models/Staff.js";
 import Student from "../models/Student.js";
 import { GeneralSettings } from "../models/AppSettings.js";
-import Attendance from "../models/Results&Scores.js";
+import Attendance, { AdditionalRecords } from "../models/Results&Scores.js";
 //data number generator
 
 const generateId = async (num) => {
@@ -360,10 +360,19 @@ export const getStudentForWork = async (req, res) => {
             classId: id
         });
 
+        //previous additional records too
+
+        const additionalRecords = await AdditionalRecords.find({
+            classId: id,
+            session: term.setUps.currentSession,
+            term: term.setUps.currentTerm,
+        });
+        
         res.status(201).json({
             msg: "Students Successfully fetched!",
             students: studentWithFee,
             attendanceRecords: attdRec || null,
+            additionalRecords,
             success: true
         });
 
