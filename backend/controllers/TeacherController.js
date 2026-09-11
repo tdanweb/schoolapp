@@ -319,6 +319,14 @@ const staffEdit = await Teacher.findOneAndUpdate(
   { new: true }
 );
 
+if (staffType === "admin" || staffType === "admin2") {
+    const staffEditing = await User.findOneAndUpdate(
+        { regNo },
+        { $set: {thisUser: staffType } },
+        { new: true }
+    );
+}
+
 res.status(200).json({
   msg: "Staff Details have been updated.",
   staff: staffEdit

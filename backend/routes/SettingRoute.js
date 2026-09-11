@@ -16,7 +16,7 @@ import { Teacher } from "../models/Staff.js";
 import { HomeUpdate } from "../models/AppSettings.js";
 import BlogPost from "../models/Post.js"
 import { auth2 } from "../middlewares/auth.js";
-import { fetchDashBoard, fetchOtherUserDashboard } from "../controllers/UserDataFetch.js";
+import { fetchDashBoard, fetchOtherUserDashboard, getFeeInfo } from "../controllers/UserDataFetch.js";
 import Applicant from "../models/Applicant.js";
 import User from "../models/User.js";
 const routes = express.Router();
@@ -459,4 +459,11 @@ routes.get("/blog-posts/:id",
     }
   }
 );
+
+
+//
+// School Fees
+
+//get details
+routes.get("/user/fee-info", getFeeInfo);
 export default routes;

@@ -370,21 +370,25 @@ function UploadAdditionalRecords({
   const handleUpload = async () => {
     setLoading(true);
 
-    const uploadAPI = `${mainApi}/results/upload-records?regNo=${regNo}&classId=${classId}`
+    const token = JSON.parse(localStorage.getItem("logged-user")).token;
+    const uploadAPI = `${mainApi}/results/upload-records?regNo=${regNo}&classId=${classId}&token=${token}`
     console.log(
       "ADDITIONAL RECORDS TO UPLOAD:",
       records
     );
 
     try {
-      const res = await axios.put(uploadAPI, records);
+      const res = await axios.post(uploadAPI, {records});
       console.log(res.data)
     } catch (error) {
-      if(error.response){
-        alert(error.response.data.msg)
-      }
+  console.error("Upload error:", error);
 
-      alert("Network/Sever Error.. Try again later..")
+  const message =
+    error.response?.data?.msg ||
+    error.message ||
+    "Network/Server Error.. Try again later..";
+
+  alert(message);
     }finally{
       setLoading(false)
     }
@@ -831,7 +835,7 @@ function UploadAdditionalRecords({
 
           <FiUpload size={16} />
 
-          Upload Records
+          Upload Records{loading && "...."}
 
         </button>
 

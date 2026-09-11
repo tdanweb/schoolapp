@@ -137,6 +137,7 @@ export function AllSideBarLinks({
     <div className="space-y-1">
       {/* General */}
       <SideLink name="Home" abb="home" icon={<FaHome size={18} />} url="/app/user/home" />
+      <SideLink name="Academic Calendar" abb="calendar" icon={<FaCalendarAlt size={18} />} url="/app/user/calendar" />
 
       {/* Staff Academic Actions */}
       {(isAdmin || permissions.isClassTeacher) && (

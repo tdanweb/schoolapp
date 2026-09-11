@@ -68,7 +68,7 @@ function PopUp({ message, close, zed = 60, showClose = false }) {
 }
 
 
-export function AlertMessage({msg, click, zed = 60}){
+export function AlertMessage({msg, click, zed = 60, element}){
 
   return (
         <div className={`fixed inset-0 z-[${ zed || 60 }] flex items-center justify-center bg-black/50 px-4`}>
@@ -90,6 +90,8 @@ export function AlertMessage({msg, click, zed = 60}){
             <p className="text-gray-700">
               {msg}
             </p>
+
+            {element}
 
           </div>
         </div>

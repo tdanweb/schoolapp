@@ -108,38 +108,85 @@ router.post("/bulk-upload", staffAuth, async (req, res) => {
 
 
 // Bulk upload / update additional student records
-router.put("/upload-records",  staffAuth, async (req, res) => {
+router.post("/upload-records", staffAuth, async (req, res) => {
   try {
     const { records } = req.body;
-    const {regNo, classId} = req.query; //must be staff class
+    const { regNo, classId } = req.query;
 
-    const staffAuth = await Teacher.findOne({regNo, activeStaff: true}).
-    select("assignedClass signature");
-    const setting = await GeneralSettings.findOne({_id: "general-setup"}).select("setUps")
-  
-    const auth1 = staffAuth.assignedClass.classId === classId;
-    const thisSession = setting.currentSession || ""
-    const thisTerm = setting.currentTerm || ""
-    const sign = staffAuth.signature
-
-    if(!auth1 || !thisSession || !thisTerm){
-      return res.status(403).json({
-        msg: "You cannot Upload Records at the moment...",
-      }); 
-    }
-
+    // ------------------------------------
+    // VALIDATE RECORDS
+    // ------------------------------------
     if (!Array.isArray(records) || records.length === 0) {
       return res.status(400).json({
         msg: "records must be a non-empty array",
       });
     }
 
+    // ------------------------------------
+    // GET STAFF
+    // ------------------------------------
+    const teacher = await Teacher.findOne({
+      regNo,
+      activeStaff: true,
+    }).select("assignedClass signature");
+
+    if (!teacher) {
+      return res.status(404).json({
+        msg: "Active staff member not found",
+      });
+    }
+
+    // ------------------------------------
+    // CHECK STAFF CLASS
+    // ------------------------------------
+    // Adjust this depending on how assignedClass
+    // is stored in your schema.
+
+    const assignedClass = teacher.assignedClass.classId;
+
+    if (
+      assignedClass &&
+      String(assignedClass) !== String(classId)
+    ) {
+      return res.status(403).json({
+        msg: "You are not authorized to upload records for this class",
+      });
+    }
+
+    // ------------------------------------
+    // GET GENERAL SETTINGS
+    // ------------------------------------
+    const setting = await GeneralSettings.findOne({
+      _id: "general-setup",
+    }).select("setUps");
+
+    if (!setting) {
+      return res.status(500).json({
+        msg: "General settings not found",
+      });
+    }
+
+    // ------------------------------------
+    // CURRENT SESSION / TERM
+    // ------------------------------------
+    const thisSession = setting?.setUps?.currentSession || "";
+    const thisTerm = setting?.setUps?.currentTerm || "";
+
+    if (!thisSession || !thisTerm) {
+      return res.status(400).json({
+        msg: "Current session or term is not properly configured",
+      });
+    }
+
+    const sign = teacher.signature || "";
+
+    // ------------------------------------
+    // CREATE BULK OPERATIONS
+    // ------------------------------------
     const operations = records.map((item) => {
       const {
         admissionNo,
         userID,
-        session,
-        term,
         teacherComment,
         principalComment,
         generalComment,
@@ -148,6 +195,10 @@ router.put("/upload-records",  staffAuth, async (req, res) => {
         promotion,
       } = item;
 
+      if (!admissionNo) {
+        throw new Error("Every record must have an admissionNo");
+      }
+
       // Unique record ID
       const recordId = `${admissionNo}-${thisSession}-${thisTerm}`;
 
@@ -155,28 +206,33 @@ router.put("/upload-records",  staffAuth, async (req, res) => {
         updateOne: {
           filter: {
             admissionNo,
-            thisSession,
-            thisTerm,
+            session: thisSession,
+            term: thisTerm,
           },
 
           update: {
             $set: {
               userID,
+
               teacherComment: {
-                ...teacherComment, signature: sign
+                text: teacherComment?.text || "",
+                signature: sign,
               },
-              principalComment,
-              generalComment,
-              psychoScores,
-              affectiveScores,
-              promotion,
+
+              principalComment: principalComment || "",
+              generalComment: generalComment || "",
+
+              psychoScores: psychoScores || [],
+              affectiveScores: affectiveScores || [],
+
+              promotion: promotion || {},
             },
 
             $setOnInsert: {
               _id: recordId,
               admissionNo,
-              session,
-              term,
+              session: thisSession,
+              term: thisTerm,
             },
           },
 
@@ -185,6 +241,9 @@ router.put("/upload-records",  staffAuth, async (req, res) => {
       };
     });
 
+    // ------------------------------------
+    // BULK WRITE
+    // ------------------------------------
     const result = await AdditionalRecords.bulkWrite(operations);
 
     return res.status(200).json({

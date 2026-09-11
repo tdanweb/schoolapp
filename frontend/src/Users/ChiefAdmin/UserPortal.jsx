@@ -3,7 +3,7 @@ import { Link, Navigate, Outlet, useNavigate, useParams } from "react-router-dom
 import { mainApi } from "../../api";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { Settings } from "lucide-react";
+import { Settings, BellRing } from "lucide-react";
 const api = `${mainApi}/setting`;
 
 import  { AllSideBarLinks } from "../SideLinks";
@@ -34,9 +34,10 @@ import {
     FaClipboardList,
 } from "react-icons/fa";
 import { Crest, CREST } from "../../assets/Assets";
-import StaffDashboardHome, { ParentDashboardHome, StudentDashboardHome } from "../DashBoardHome";
+//import { ParentDashboardHome, StudentDashboardHome } from "../DashBoardHome";
 import { TermInfo } from "./GeneralSetting";
 import { StaffDashboard } from "../DashBoards";
+import StudentDashboard from "../Student/MyDashBoard";
 
 export function DashboardHome() {
     const [info, setInfo] = useState(null);
@@ -47,6 +48,9 @@ export function DashboardHome() {
     const [user, setUser] = useState(null);
     const [termInfo, setTermInfo] = useState(null);
 
+    //updates
+
+    const [updates, setUpdates] = useState([]);
     //admin data
     const [adminData, setAdminData] = useState(null);
     const [staffData, setStaffData] = useState(null);
@@ -54,7 +58,7 @@ export function DashboardHome() {
     const [parentData, setParentData] = useState(null);
 
 //get settings....
-        async function getSettings() {
+ async function getSettings() {
             const api = `${mainApi}/setting`;
             try {
                 const res = await axios.get(api);
@@ -78,15 +82,15 @@ async function getAdminDashboardData(){
         setInfo(JSON.parse(localStorage.getItem("site-settings") || null))
         //add token to header for auth
         const savedUser = JSON.parse(localStorage.getItem("logged-user") || null);
-        const adminApi = `${mainApi}/setting/admin/dashboard-info`
+        if(savedUser.role !== "admin" && savedUser.role !== "chief-admin"){ return }
 
+        const adminApi = `${mainApi}/setting/admin/dashboard-info`
         //admin
         const res = await axios.get(adminApi, {
           headers: {
             Authorization: `Bearer ${savedUser.token}`
           }
         });
-        console.log("ADMIN DATA: ", res.data)
         setAdminData(res.data)
   } catch (error) {
     if(error.response){
@@ -109,14 +113,17 @@ async function getDashboardData(){
         //general dashboard
         const dashData = await axios.get(api);
         console.log("USER DATA DASHBOARD: ", dashData.data);
+        setUpdates(dashData.data.updates);
        
         //data fetching...
         if(dashData.data.staff){
-          setStaffData(res.data)
+          setStaffData(dashData.data)
+          return;
         }
 
         if(dashData.data.student){
-
+          setStudentData(dashData.data);
+          return;
         }
        // setUserData(dashData.data.dashboard);
 
@@ -205,17 +212,118 @@ async function getDashboardData(){
   //pass in specific user data params.... admin/chief-admin together for now...
 }
 
-       {user?.role === "student" && <StudentDashboardHome/>}
-       {user?.role === "parent" && <ParentDashboardHome/>}
-       {(user?.role === "staff" || user?.role === "admin" || user?.role === "chief-admin") && <StaffDashboard adminData={adminData || null}/>}
+
+       {user?.role === "student" && <StudentDashboard studentData={studentData}/>}
+       {/*user?.role === "parent" && <ParentDashboardHome/>   */}
+       {(user?.role === "staff" || user?.role === "admin" || user?.role === "chief-admin") && <StaffDashboard staffData={staffData} adminData={adminData || null}/>}
 
         <div className="my-4"></div>
 
        {
-        //settings and term info..
-
+        /*settings and term info..
         <TermInfo termSetting={termInfo}/>
+        */
        }
+
+
+{updates && updates.length > 0 && (
+  <motion.section
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.35 }}
+    className="space-y-3 mb-5"
+  >
+    {/* HEADER */}
+    <div className="flex items-center justify-between">
+      <div className="flex items-center gap-2">
+        <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+          <BellRing className="w-4 h-4" />
+        </div>
+
+        <div>
+          <h2 className="text-sm font-bold text-slate-800">
+            Updates from School
+          </h2>
+
+          <p className="text-[10px] text-slate-400">
+            Latest school announcements and notices
+          </p>
+        </div>
+      </div>
+
+      <span className="text-[10px] font-medium text-slate-400">
+        {updates.length} {updates.length === 1 ? "Update" : "Updates"}
+      </span>
+    </div>
+
+
+    {/* UPDATE CARDS */}
+    <div className="space-y-3">
+      {updates.map((update) => (
+        <motion.div
+          key={update._id}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm"
+        >
+          <div className="flex items-start gap-3">
+
+            {/* UPDATE ICON */}
+            <div className="w-9 h-9 shrink-0 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+              <BellRing className="w-4 h-4" />
+            </div>
+
+            <div className="min-w-0 flex-1">
+
+              {/* TITLE + DATE */}
+              <div className="flex items-start justify-between gap-3">
+                <h3 className="text-sm font-semibold text-slate-800">
+                  {update.title}
+                </h3>
+
+                <span className="shrink-0 text-[10px] text-slate-400">
+                  {new Date(update.createdAt).toLocaleDateString("en-NG", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </span>
+              </div>
+
+              {/* BODY */}
+              <p className="mt-1.5 text-xs sm:text-sm leading-5 text-slate-500">
+                {update.body}
+              </p>
+
+              {/* POSTER + TIME */}
+              <div className="mt-3 flex items-center justify-between gap-3">
+
+                <div className="min-w-0">
+                  <p className="text-[11px] font-medium text-slate-700 truncate">
+                    {update.poster?.displayName || "Unknown"}
+                  </p>
+
+                  <p className="text-[10px] text-slate-400 capitalize">
+                    {update.poster?.staffType || "Staff"}
+                  </p>
+                </div>
+
+                <span className="shrink-0 text-[10px] text-slate-400">
+                  {new Date(update.createdAt).toLocaleTimeString("en-NG", {
+                    hour: "numeric",
+                    minute: "2-digit",
+                  })}
+                </span>
+
+              </div>
+
+            </div>
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  </motion.section>
+)}
       </div>
     )
 };

@@ -30,9 +30,8 @@ import EntranceExam from "./Admission/ApplicantExam"
 import AdmissionStatus from "./Admission/Status"
 import ManageStaff from "./Users/ManageStaff"
 import Updates from "./Users/Updates"
-import ManageFee from "./Users/ChiefAdmin/ManageFee"
 import StaffList from "./Users/ChiefAdmin/StaffList"
-import ResultSheet, { ResultPage } from "./Users/Roles/ResultsView"
+import { ResultPage } from "./Users/Roles/ResultsView"
 import ApplicantRegPage from "./Admission/ApplicantReg"
 import ManageResultPins from "./Users/ChiefAdmin/ManageResultPins"
 import Academics from "./Pages/Academics"
@@ -42,6 +41,7 @@ import StudentAttendance from "./Users/Student/Attendance"
 import Inbox from "./Users/Inbox"
 import { ParentStudentProfile } from "./Users/Parent-Student-Profile"
 import { Timetable } from "./Users/UnderDevCompo"
+import Fee_Finance from "./Users/Fees&Payment"
 
 
 
@@ -110,7 +110,8 @@ function App() {
               <Route path="timetable" element={<Timetable/>}/>
               <Route path="manage-students" element={<ProfileView/>}/>
               <Route path="updates" element={<Updates/>}/>
-              <Route path="finance" element={<ManageFee/>}/>
+              <Route path="finance" element={<Fee_Finance/>}/> 
+              <Route path="fees" element={<Fee_Finance/>}/> 
               <Route path="result-pins" element={<ManageResultPins/>}/>
 
               {/*Manage Admissions*/}

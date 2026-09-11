@@ -30,7 +30,7 @@ const StudentIDCard = ({
 presented whenever requested. If found, please return it to the school authority.`,
 
   schoolAddress = "14, Adeolu Crescent, Maitama Abuja Nigeria.",
-  principalSignature,
+  principalSignature = "/p-signature.jpg",
 
   QRComponent,
 }) => {
@@ -922,7 +922,7 @@ const Info = ({ label, value }) => (
 
                     {principalSignature && (
                       <img
-                        src={principalSignature}
+                        src="signature.jpg"
                         alt="Principal Signature"
                         crossOrigin="anonymous"
                         className="

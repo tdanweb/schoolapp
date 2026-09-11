@@ -43,3 +43,28 @@ const UnderDevelopmentCard = () => {
 };
 
 export default UnderDevelopmentCard;
+
+
+import { motion } from "framer-motion";
+
+export function Loader({ test = "Loading..." }) {
+  return (
+    <div className="flex min-h-[120px] items-center justify-center">
+      <div className="flex items-center gap-2">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{
+            duration: 0.8,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+          className="h-5 w-5 rounded-full border-2 border-slate-200 border-t-blue-600"
+        />
+
+        <span className="text-xs font-medium text-slate-500">
+          {test}
+        </span>
+      </div>
+    </div>
+  );
+}

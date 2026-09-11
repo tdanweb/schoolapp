@@ -70,6 +70,7 @@ export const staffAuth = async (req, res, next) => {
         })
        }
 
+       req.regNo = userCheck.regNo;
        next();
     } catch (error) {
         res.status(401).json({

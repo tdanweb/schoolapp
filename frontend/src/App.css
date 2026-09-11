@@ -85,3 +85,654 @@ available fonts
         margin: 8mm;
     }
 }
+
+
+/* ==========================================================================
+   A4 SHEET & PAGE CONTAINER
+   ========================================================================== */
+.result-page {
+  background-color: #f1f5f9;
+  min-height: 100vh;
+  padding: 1rem 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #1e293b;
+  box-sizing: border-box;
+}
+
+.result-sheet {
+  background: #ffffff;
+  width: 210mm; /* Standard A4 width */
+  min-height: 297mm; /* Standard A4 height */
+  padding: 18mm 15mm;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  border: 1px solid #e2e8f0;
+}
+
+/* Common Section Heading Style */
+.section-heading {
+  border-bottom: 2px solid #0f172a;
+  padding-bottom: 0.35rem;
+  margin-bottom: 0.75rem;
+}
+
+.section-heading h3 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #0f172a;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   SCHOOL HEADER
+   ========================================================================== */
+.result-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  border-bottom: 2px double #cbd5e1;
+  padding-bottom: 1rem;
+}
+
+.school-logo-wrapper {
+  flex-shrink: 0;
+}
+
+.school-crest {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+}
+
+.school-header-content {
+  flex: 1;
+  text-align: center;
+}
+
+.school-name {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 0.25rem 0;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+.school-motto {
+  font-size: 0.8rem;
+  font-style: italic;
+  color: #475569;
+  margin: 0 0 0.5rem 0;
+  font-weight: 500;
+}
+
+.school-contact {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin: 0 0 0.25rem 0;
+}
+
+.school-contact-row {
+  display: flex;
+  justify-content: center;
+  gap: 1.25rem;
+  font-size: 0.75rem;
+  color: #475569;
+  font-weight: 500;
+}
+
+.school-contact-row span:not(:last-child)::after {
+  content: "•";
+  margin-left: 1.25rem;
+  color: #cbd5e1;
+}
+
+/* ==========================================================================
+   RESULT TITLE SECTION
+   ========================================================================== */
+.result-title-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8fafc;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+}
+
+.result-title-section h2 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  margin: 0;
+  color: #0f172a;
+  letter-spacing: 0.025em;
+}
+
+.result-title-section p {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0.2rem 0 0 0;
+  font-weight: 600;
+}
+
+.result-session {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.result-session span {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #64748b;
+}
+
+.result-session strong {
+  font-size: 0.95rem;
+  color: #0f172a;
+}
+
+/* ==========================================================================
+   STUDENT INFORMATION SECTION (REFINED)
+   ========================================================================== */
+.student-section {
+  display: grid;
+  grid-template-columns: 110px 1fr 110px;
+  gap: 1.25rem;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 0.85rem;
+}
+
+/* Passport - Left */
+.student-passport {
+  width: 100px;
+  height: 115px;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #cbd5e1;
+  background-color: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.student-passport img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.passport-placeholder {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #94a3b8;
+  letter-spacing: 0.05em;
+}
+
+/* Details Grid - Middle */
+.student-details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem 1.25rem;
+}
+
+.student-detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  border-bottom: 1px dashed #f1f5f9;
+  padding-bottom: 0.25rem;
+}
+
+.student-detail-row span {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.student-detail-row strong {
+  font-size: 0.825rem;
+  color: #0f172a;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* QR Code - Right */
+.student-qr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border-left: 1px solid #f1f5f9;
+  padding-left: 0.75rem;
+}
+
+.qr-box {
+  padding: 4px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  display: flex;
+}
+
+.qr-info {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.qr-info span {
+  font-size: 0.6rem;
+  color: #64748b;
+  text-transform: uppercase;
+}
+
+.qr-info strong {
+  font-size: 0.7rem;
+  color: #0f172a;
+}
+
+/* ==========================================================================
+   RESULT PIN METADATA
+   ========================================================================== */
+.result-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: #475569;
+  background-color: #f8fafc;
+  padding: 0.4rem 0.75rem;
+  border-radius: 4px;
+  border: 1px dashed #cbd5e1;
+  width: fit-content;
+}
+
+.result-meta span {
+  color: #64748b;
+}
+
+.result-meta strong {
+  font-family: monospace;
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  color: #0f172a;
+}
+
+/* ==========================================================================
+   SUBJECT RESULTS TABLE (REFINED)
+   ========================================================================== */
+.results-section {
+  width: 100%;
+}
+
+.results-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
+.results-table th,
+.results-table td {
+  padding: 0.5rem 0.4rem;
+  border: 1px solid #e2e8f0;
+}
+
+.results-table thead th {
+  background-color: #0f172a;
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.725rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.results-table tbody tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.results-table tbody tr:hover {
+  background-color: #f1f5f9;
+}
+
+.results-table td.subject-name {
+  text-align: left;
+  font-weight: 600;
+  color: #1e293b;
+  padding-left: 0.75rem;
+}
+
+.results-table td strong {
+  color: #0f172a;
+}
+
+/* ==========================================================================
+   TRAITS & DOMAINS
+   ========================================================================== */
+.traits-section {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.trait-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 0.75rem;
+  background-color: #ffffff;
+}
+
+.trait-card h3 {
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  color: #0f172a;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 0.25rem;
+}
+
+.trait-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.trait-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+}
+
+.trait-row span {
+  color: #475569;
+  text-transform: capitalize;
+}
+
+.trait-row strong {
+  color: #0f172a;
+  background: #f1f5f9;
+  padding: 0.1rem 0.4rem;
+  border-radius: 3px;
+  font-size: 0.7rem;
+}
+
+/* ==========================================================================
+   FEE INFORMATION (REFINED)
+   ========================================================================== */
+.fee-section {
+  width: 100%;
+}
+
+.fee-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.fee-grid > div {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 0.6rem 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.fee-grid span {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.fee-grid strong {
+  font-size: 0.95rem;
+  color: #0f172a;
+}
+
+/* Highlight Outstanding balance subtly */
+.fee-grid > div:last-child strong {
+  color: #dc2626;
+}
+
+/* ==========================================================================
+   ACADEMIC INFO BAR
+   ========================================================================== */
+.academic-info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+  background-color: #0f172a;
+  color: #ffffff;
+  padding: 0.6rem 1rem;
+  border-radius: 6px;
+}
+
+.academic-info > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.academic-info span {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+.academic-info strong {
+  font-size: 0.85rem;
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   COMMENTS SECTION (REFINED)
+   ========================================================================== */
+.comments-section {
+  display: flex;
+  flex-direction: column;
+}
+
+.comment-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 0.6rem 0.85rem;
+  margin-bottom: 0.5rem;
+}
+
+.comment-box:last-child {
+  margin-bottom: 0;
+}
+
+.comment-box h4 {
+  font-size: 0.725rem;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  margin: 0 0 0.25rem 0;
+  letter-spacing: 0.025em;
+}
+
+.comment-box p {
+  font-size: 0.8rem;
+  color: #1e293b;
+  margin: 0;
+  line-height: 1.4;
+  font-style: italic;
+}
+
+.comment-signature {
+  margin-top: 0.4rem;
+  font-size: 0.7rem;
+  color: #64748b;
+  font-style: normal;
+  font-weight: 500;
+  text-align: right;
+  border-top: 1px dashed #f1f5f9;
+  padding-top: 0.25rem;
+}
+
+/* ==========================================================================
+   FOOTER
+   ========================================================================== */
+.result-footer {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.75rem;
+  border-top: 1px solid #e2e8f0;
+  font-size: 0.7rem;
+  color: #94a3b8;
+}
+
+/* ==========================================================================
+   PRINT STYLESHEET (AUTOMATIC A4 FORMATTING FOR PRINTING)
+   ========================================================================== */
+@media print {
+  body {
+    background: none;
+    padding: 0;
+  }
+
+  .result-page {
+    padding: 0;
+    background: none;
+  }
+
+  .result-sheet {
+    box-shadow: none;
+    border: none;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 12mm;
+  }
+}
+
+/* ==========================================================================
+   PDF EXPORT CLIPPING FIXES
+   ========================================================================== */
+
+.student-section {
+  /* Prevent flex layout issues during PDF canvas capture */
+  align-items: stretch !important;
+}
+
+.student-detail-row {
+  /* Ensure container expands smoothly without cutting off text */
+  height: auto !important;
+  min-height: min-content !important;
+  padding-bottom: 0.35rem !important;
+  margin-bottom: 0.15rem;
+  overflow: visible !important;
+}
+
+.student-detail-row span,
+.student-detail-row strong {
+  /* Fix vertical font clipping issues */
+  line-height: 1.35 !important;
+  display: block !important;
+  overflow: visible !important;
+  white-space: normal !important; /* Prevents horizontal clipping/truncation */
+  word-break: break-word !important;
+  text-overflow: clip !important;
+}
+
+.student-detail-row span {
+  padding-top: 0.1rem;
+}
+
+.student-detail-row strong {
+  padding-bottom: 0.1rem;
+}
+
+/* Specific fix when printing / exporting via html2canvas or window.print */
+@media print {
+  .student-detail-row span,
+  .student-detail-row strong {
+    line-height: 1.4 !important;
+  }
+}
+
+
+
+/* ================= =========================================================
+   A4 SHEET WATERMARK
+   ========================================================================== */
+
+/* This must be set on the PARENT container (.result-sheet)
+   to ensure the watermark positions itself relative to the sheet.
+   It is likely already set in previous steps, but included here for safety. */
+.result-sheet {
+  position: relative; /* CRITICAL FOR WATERMARK POSITIONING */
+  /* Other existing styles (width, height, background, etc.)... */
+}
+
+/* Watermark Container: Pins it fixed in the sheet center */
+.watermark-container {
+  position: absolute;
+  top: 50%; /* Position the top-left edge exactly at the middle height */
+  left: 50%; /* Position the top-left edge exactly at the middle width */
+  transform: translate(-50%, -50%); /* Pull the image back by 50% of its own dimensions to center it perfectly */
+
+  z-index: 0; /* Ensures it sits behind all text elements */
+  pointer-events: none; /* Prevents it from interfering with selection or clicks */
+  width: 70%; /* Size the watermark area relative to the sheet width */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  /* Force background rendering in some browser print engines */
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+}
+
+/* Watermark Image Styling: Low Opacity and Greyed-out */
+.watermark-crest {
+  width: 100%; /* Fill the 70% container width defined above */
+  height: auto; /* Maintain aspect ratio */
+  object-fit: contain;
+
+  /* MAIN VISUAL STYLES FOR SUBTLETY */
+  opacity: 0.035; /* Extremely faint opacity (4.5%) to ensure data remains readable over it */
+  filter: grayscale(100%); /* Force image to monochromatic (greyed out) */
+  -webkit-filter: grayscale(100%); /* Cross-browser support for grayscale filter */
+}
+
+/* Ensuring watermark persists during print/PDF export */
+@media print {
+  .watermark-container {
+    visibility: visible !important;
+  }
+}

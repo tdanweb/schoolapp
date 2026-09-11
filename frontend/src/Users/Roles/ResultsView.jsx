@@ -1,796 +1,11 @@
 //import "./ResultSheet.css";
 import React, { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
+
 import SaveResultPDF, { PaperView } from "../../components/ResultsSavePDF";
 import { mainApi } from "../../api";
 import axios from "axios";
 
-const mockResult = {
-  school: {
-    name: "Achievers International Schools",
-    motto: "For Outstanding Success with Discipline",
-    crest: "/crest.png",
-    address: "12 Excellence Avenue, Abuja, Nigeria",
-    phone: "+234 800 000 0000",
-    email: "info@achieversschools.com",
-    website: "www.achieversschools.com",
-    facebook: "@AchieversInternationalSchools",
-    instagram: "@achieversschools",
-  },
-
-  term: "Third Term",
-  session: "2025/2026",
-
-  student: {
-    passportUrl: "https://res.cloudinary.com/dqfmedorr/image/upload/v1787745994/app_uploads/kdklrlf5luymzmmilmfh.jpg",
-    surname: "BETIKU",
-    otherName: "Daniel Temidayo",
-    admissionNo: "AIS/2023/0045",
-    portalRegNo: "AIS-P-009821",
-    gender: "Male",
-    dob: "09 August 2010",
-    className: "JSS 3",
-    arm: "A",
-    dateGenerated: "28 August 2026",
-    checkerPin: "******78214",
-    house: "Gold House",
-    club: "Press Club",
-  },
-
-  results: [
-    {
-      subject: "Mathematics",
-      ca1: 18,
-      ca2: 17,
-      exam: 58,
-      lts: 82,
-      grade: "A",
-      remark: "Excellent",
-      teacherSignature:
-        "https://res.cloudinary.com/dqfmedorr/image/upload/w_120,h_60,c_fit,q_auto,f_auto/v1/sample.png",
-    },
-    {
-      subject: "Digital Technology",
-      ca1: 19,
-      ca2: 18,
-      exam: 57,
-      lts: 88,
-      grade: "A",
-      remark: "Excellent",
-      teacherSignature:
-        "https://res.cloudinary.com/dqfmedorr/image/upload/w_120,h_60,c_fit,q_auto,f_auto/v1/sample.png",
-    },
-    {
-      subject: "English Studies",
-      ca1: 16,
-      ca2: 18,
-      exam: 52,
-      lts: 76,
-      grade: "B",
-      remark: "Very Good",
-      teacherSignature:
-        "https://res.cloudinary.com/dqfmedorr/image/upload/w_120,h_60,c_fit,q_auto,f_auto/v1/sample.png",
-    },
-    {
-      subject: "Basic Science",
-      ca1: 17,
-      ca2: 16,
-      exam: 54,
-      lts: 79,
-      grade: "A",
-      remark: "Excellent",
-      teacherSignature:
-        "https://res.cloudinary.com/dqfmedorr/image/upload/w_120,h_60,c_fit,q_auto,f_auto/v1/sample.png",
-    },
-    {
-      subject: "Social Studies",
-      ca1: 15,
-      ca2: 16,
-      exam: 48,
-      lts: 72,
-      grade: "B",
-      remark: "Very Good",
-      teacherSignature:
-        "https://res.cloudinary.com/dqfmedorr/image/upload/w_120,h_60,c_fit,q_auto,f_auto/v1/sample.png",
-    },
-    {
-      subject: "Computer Studies",
-      ca1: 19,
-      ca2: 18,
-      exam: 57,
-      lts: null,
-      grade: "A",
-      remark: "Excellent",
-      teacherSignature:
-        "https://res.cloudinary.com/dqfmedorr/image/upload/w_120,h_60,c_fit,q_auto,f_auto/v1/sample.png",
-    },
-    {
-      subject: "Civic Education",
-      ca1: 16,
-      ca2: 15,
-      exam: 51,
-      lts: 74,
-      grade: "B",
-      remark: "Very Good",
-      teacherSignature:
-        "https://res.cloudinary.com/dqfmedorr/image/upload/w_120,h_60,c_fit,q_auto,f_auto/v1/sample.png",
-    },
-  ],
-
-  psychomotor: {
-    punctuality: "A",
-    neatness: "A",
-    handwriting: "B",
-    sports: "A",
-    creativity: "A",
-    leadership: "B",
-  },
-
-  affective: {
-    attentiveness: "A",
-    cooperation: "A",
-    honesty: "A",
-    responsibility: "A",
-    politeness: "B",
-    selfControl: "A",
-  },
-
-  fees: {
-    totalFee: 250000,
-    paid: 180000,
-    outstanding: 70000,
-  },
-
-  nextTermBegins: "14 September 2026",
-  promotedTo: "SS 1",
-
-  comments: {
-    teacher:
-      "Daniel has demonstrated remarkable improvement this term. He should continue with his excellent attitude towards learning.",
-    principal:
-      "A very impressive performance. Keep working hard and maintain this standard.",
-    general:
-      "We congratulate the student and wish him continued success.",
-    teacherName: "Mrs. A. Johnson",
-    principalName: "Dr. J. Williams",
-    teacherSignature:
-      "https://res.cloudinary.com/dqfmedorr/image/upload/w_160,h_70,c_fit,q_auto,f_auto/v1/sample.png",
-    principalSignature:
-      "https://res.cloudinary.com/dqfmedorr/image/upload/w_160,h_70,c_fit,q_auto,f_auto/v1/sample.png",
-  },
-};
-
-const formatMoney = (amount) =>
-  new Intl.NumberFormat("en-NG", {
-    style: "currency",
-    currency: "NGN",
-    maximumFractionDigits: 0,
-  }).format(amount);
-
-const getCaTotal = (result) => result.ca1 + result.ca2;
-
-const getCurrentTotal = (result) =>
-  getCaTotal(result) + result.exam;
-
-const getFinalScore = (result) => {
-  const current = getCurrentTotal(result);
-  if (result.lts !== null && result.lts !== undefined) {
-    return ((current + result.lts) / 2).toFixed(1);
-  }
-
-  return current;
-};
-
-const getOverallSummary = (results) => {
-  const scores = results.map((result) => Number(getFinalScore(result)));
-
-  const total = scores.reduce((sum, score) => sum + score, 0);
-  const average = total / scores.length;
-
-  let grade = "F";
-  let rating = "Needs Improvement";
-  let remark = "More effort is required.";
-
-  if (average >= 80) {
-    grade = "A";
-    rating = "Excellent";
-    remark = "Outstanding academic performance.";
-  } else if (average >= 70) {
-    grade = "B";
-    rating = "Very Good";
-    remark = "Very good academic performance.";
-  } else if (average >= 60) {
-    grade = "C";
-    rating = "Good";
-    remark = "Good academic performance.";
-  } else if (average >= 50) {
-    grade = "D";
-    rating = "Fair";
-    remark = "Fair performance. More effort is encouraged.";
-  }
-
-  return {
-    total: total.toFixed(1),
-    average: average.toFixed(1),
-    rating,
-    grade,
-    remark,
-  };
-};
-
-const RatingTable = ({ title, data }) => (
-  <div className="flex-1">
-    <h4 className="mb-2 bg-slate-900 px-3 py-2 text-center text-xs font-bold uppercase tracking-wide text-white">
-      {title}
-    </h4>
-
-    <table className="w-full border-collapse text-[10px]">
-      <tbody>
-        {Object.entries(data).map(([key, value]) => (
-          <tr key={key}>
-            <td className="border border-slate-300 px-2 py-1.5 capitalize">
-              {key.replace(/([A-Z])/g, " $1")}
-            </td>
-
-            <td className="w-14 border border-slate-300 px-2 py-1.5 text-center font-bold">
-              {value}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-);
-
-const Signature = ({ src, name }) => (
-  <div className="flex min-h-14 flex-col items-center justify-end">
-    {src && (
-      <img
-        src={src}
-        alt="signature"
-        className="mb-0.5 h-9 w-24 object-contain"
-      />
-    )}
-
-    <div className="w-full border-t border-slate-400 pt-1 text-center text-[9px]">
-      {name}
-    </div>
-  </div>
-);
-
-
-function ResultSheet({ data = mockResult }) {
-  const summary = getOverallSummary(data.results);
-
-  const totalFee =
-    data.fees.totalFee ??
-    data.fees.paid + data.fees.outstanding;
-
-  const outstanding =
-    data.fees.outstanding ??
-    totalFee - data.fees.paid;
-
-  return (
-    <div className="min-h-screen bg-slate-100 px-4 py-8 print:bg-white print:p-0">
-
-      {/* A4 SHEET */}
-      <div
-        id="student-result-sheet"
-        className="relative mx-auto w-full max-w-[794px] overflow-hidden bg-white text-slate-800 shadow-xl print:max-w-none print:shadow-none"
-      >
-
-        {/* WATERMARK */}
-        <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center">
-          <img
-            src={data.school.crest}
-            alt=""
-            className="w-[430px] opacity-[0.035]"
-          />
-        </div>
-
-        {/* CONTENT */}
-        <div className="relative z-10 p-7">
-
-          {/* =====================================================
-              S1 - SCHOOL HEADER
-          ====================================================== */}
-          <section className="grid grid-cols-[90px_1fr_190px] items-center gap-4 border-b-2 border-slate-800 pb-4">
-
-            {/* Crest */}
-            <div className="flex justify-center">
-              <img
-                src={data.school.crest}
-                alt="School crest"
-                className="h-20 w-20 object-contain"
-              />
-            </div>
-
-            {/* School name */}
-            <div className="text-center">
-              <h1 className="text-xl font-black uppercase tracking-wide text-slate-900">
-                {data.school.name}
-              </h1>
-
-              <p className="mt-1 text-[10px] italic">
-                "{data.school.motto}"
-              </p>
-
-              <div className="mt-3 inline-flex gap-2 text-[10px] font-bold">
-                <span className="rounded bg-slate-900 px-3 py-1 text-white">
-                  {data.term}
-                </span>
-
-                <span className="rounded border border-slate-400 px-3 py-1">
-                  {data.session}
-                </span>
-              </div>
-            </div>
-
-            {/* Address/contact */}
-            <div className="text-right text-[9px] leading-4">
-              <p>{data.school.address}</p>
-
-              <p className="mt-1">
-                ☎ {data.school.phone}
-              </p>
-
-              <p>✉ {data.school.email}</p>
-
-              <p>🌐 {data.school.website}</p>
-
-              <p className="mt-1">
-                {data.school.facebook}
-              </p>
-
-              <p>{data.school.instagram}</p>
-            </div>
-          </section>
-
-          {/* =====================================================
-              S2 - STUDENT DETAILS
-          ====================================================== */}
-          <section className="mt-5">
-
-            <div className="grid grid-cols-[100px_1fr_90px] gap-4">
-
-              {/* Passport */}
-              <div className="flex items-start justify-center">
-                <img
-                  src={data.student.passportUrl}
-                  alt={data.student.surname}
-                  className="h-28 w-24 rounded border-2 border-slate-300 object-cover"
-                />
-              </div>
-
-              {/* Details */}
-              <div>
-                <h3 className="mb-2 border-b border-slate-300 pb-1 text-xs font-black uppercase">
-                  Student Information
-                </h3>
-
-                <div className="grid grid-cols-2 gap-x-5 gap-y-1.5 text-[10px]">
-
-                  <div>
-                    <span className="font-bold">Surname:</span>{" "}
-                    <span className="font-black uppercase">
-                      {data.student.surname}
-                    </span>
-                  </div>
-
-                  <div>
-                    <span className="font-bold">Other Name:</span>{" "}
-                    {data.student.otherName}
-                  </div>
-
-                  <div>
-                    <span className="font-bold">Admission No:</span>{" "}
-                    {data.student.admissionNo}
-                  </div>
-
-                  <div>
-                    <span className="font-bold">Portal Reg. No:</span>{" "}
-                    {data.student.portalRegNo}
-                  </div>
-
-                  <div>
-                    <span className="font-bold">Gender:</span>{" "}
-                    {data.student.gender}
-                  </div>
-
-                  <div>
-                    <span className="font-bold">Date of Birth:</span>{" "}
-                    {data.student.dob}
-                  </div>
-
-                  <div>
-                    <span className="font-bold">Class:</span>{" "}
-                    {data.student.className} ({data.student.arm})
-                  </div>
-
-                  <div>
-                    <span className="font-bold">Generated:</span>{" "}
-                    {data.student.dateGenerated}
-                  </div>
-
-                  <div>
-                    <span className="font-bold">Checker PIN:</span>{" "}
-                    {data.student.checkerPin}
-                  </div>
-                </div>
-              </div>
-
-              {/* QR / House */}
-              <div className="flex flex-col items-center">
-
-                <div className="border border-2 border-gray-200 p-1 rounded-md">
-                  <QRCodeSVG
-                    value={`https://aia-schools.com/r-doc/${data.student.portalRegNo}`}
-                    size={72}
-                    level="M"
-                  />
-                </div>
-
-                <p className="mt-2 text-center text-[9px]">
-                  <span className="font-bold">House:</span>{" "}
-                  {data.student.house}
-                </p>
-
-                <p className="text-center text-[9px]">
-                  <span className="font-bold">Club:</span>{" "}
-                  {data.student.club}
-                </p>
-              </div>
-            </div>
-          </section>
-
-          {/* =====================================================
-              S3 - RESULT LABEL
-          ====================================================== */}
-          <section className="my-5">
-            <div className="border-y-2 border-slate-900 py-2 text-center">
-              <h2 className="text-sm font-black uppercase tracking-[0.2em]">
-                Student End of Term Result
-              </h2>
-            </div>
-          </section>
-
-          {/* =====================================================
-              S4 - MAIN RESULT TABLE
-          ====================================================== */}
-          <section>
-
-            <table className="w-full border-collapse text-[9px]">
-              <thead>
-                <tr className="bg-slate-900 text-white">
-                  <th className="border border-white px-2 py-2 text-left">
-                    Subject
-                  </th>
-
-                  <th className="border border-white px-1">
-                    CA1
-                  </th>
-
-                  <th className="border border-white px-1">
-                    CA2
-                  </th>
-
-                  <th className="border border-white px-1">
-                    CA Total
-                  </th>
-
-                  <th className="border border-white px-1">
-                    Exam
-                  </th>
-
-                  <th className="border border-white px-1">
-                    LTS
-                  </th>
-
-                  <th className="border border-white px-1">
-                    Total Score
-                  </th>
-
-                  <th className="border border-white px-1">
-                    Grade
-                  </th>
-
-                  <th className="border border-white px-2">
-                    Remark
-                  </th>
-
-                  <th className="border border-white px-1">
-                    Teacher
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {data.results.map((result, index) => (
-                  <tr
-                    key={index}
-                    className={index % 2 === 0 ? "bg-slate-50" : "bg-white"}
-                  >
-                    <td className="border border-slate-300 px-2 py-2 font-semibold">
-                      {result.subject}
-                    </td>
-
-                    <td className="border border-slate-300 text-center">
-                      {result.ca1}
-                    </td>
-
-                    <td className="border border-slate-300 text-center">
-                      {result.ca2}
-                    </td>
-
-                    <td className="border border-slate-300 text-center font-semibold">
-                      {getCaTotal(result)}
-                    </td>
-
-                    <td className="border border-slate-300 text-center">
-                      {result.exam}
-                    </td>
-
-                    <td className="border border-slate-300 text-center">
-                      {result.lts ?? "—"}
-                    </td>
-
-                    <td className="border border-slate-300 text-center font-bold">
-                      {getFinalScore(result)}
-                    </td>
-
-                    <td className="border border-slate-300 text-center font-bold">
-                      {result.grade}
-                    </td>
-
-                    <td className="border border-slate-300 px-2 text-center">
-                      {result.remark}
-                    </td>
-
-                    <td className="border border-slate-300 text-center">
-                      <img
-                        src={result.teacherSignature}
-                        alt="Teacher signature"
-                        className="mx-auto h-7 w-16 object-contain"
-                      />
-                    </td>
-                  </tr>
-                ))}
-
-                <tr className="bg-slate-900 font-black text-white">
-                  <td
-                    colSpan="6"
-                    className="border border-white px-2 py-2 text-right"
-                  >
-                    TOTAL SCORE
-                  </td>
-
-                  <td className="border border-white text-center">
-                    {summary.total}
-                  </td>
-
-                  <td
-                    colSpan="3"
-                    className="border border-white"
-                  ></td>
-                </tr>
-              </tbody>
-            </table>
-          </section>
-
-          {/* =====================================================
-              S5 - TRAITS + SUMMARY
-          ====================================================== */}
-          <section className="mt-6 grid grid-cols-[1fr_1fr_1fr] gap-4">
-
-            {/* Psychomotor */}
-            <RatingTable
-              title="Psychomotor Skills"
-              data={data.psychomotor}
-            />
-
-            {/* Affective */}
-            <RatingTable
-              title="Affective Traits"
-              data={data.affective}
-            />
-
-            {/* Summary */}
-            <div>
-              <h4 className="mb-2 bg-slate-900 px-3 py-2 text-center text-xs font-bold uppercase tracking-wide text-white">
-                Score Summary
-              </h4>
-
-              <table className="w-full border-collapse text-[10px]">
-                <tbody>
-                  <tr>
-                    <td className="border border-slate-300 px-2 py-2 font-semibold">
-                      Total
-                    </td>
-                    <td className="border border-slate-300 px-2 text-center font-bold">
-                      {summary.total}
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td className="border border-slate-300 px-2 py-2 font-semibold">
-                      Average
-                    </td>
-                    <td className="border border-slate-300 px-2 text-center font-bold">
-                      {summary.average}
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td className="border border-slate-300 px-2 py-2 font-semibold">
-                      Rating
-                    </td>
-                    <td className="border border-slate-300 px-2 text-center">
-                      {summary.rating}
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td className="border border-slate-300 px-2 py-2 font-semibold">
-                      Grade
-                    </td>
-                    <td className="border border-slate-300 px-2 text-center font-black">
-                      {summary.grade}
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td className="border border-slate-300 px-2 py-2 font-semibold">
-                      Remark
-                    </td>
-                    <td className="border border-slate-300 px-2 text-center">
-                      {summary.remark}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </section>
-
-          {/* =====================================================
-              S6 - FEES / PROMOTION / COMMENTS
-          ====================================================== */}
-          <section className="mt-6 grid grid-cols-[1fr_1fr_1.35fr] gap-4">
-
-            {/* Fees */}
-            <div>
-              <h4 className="mb-2 bg-slate-900 px-3 py-2 text-center text-xs font-bold uppercase tracking-wide text-white">
-                Fee Information
-              </h4>
-
-              <table className="w-full border-collapse text-[10px]">
-                <tbody>
-                  <tr>
-                    <td className="border border-slate-300 px-2 py-2">
-                      Total Fee
-                    </td>
-                    <td className="border border-slate-300 px-2 text-right font-bold">
-                      {formatMoney(totalFee)}
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td className="border border-slate-300 px-2 py-2">
-                      Paid
-                    </td>
-                    <td className="border border-slate-300 px-2 text-right font-bold">
-                      {formatMoney(data.fees.paid)}
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td className="border border-slate-300 px-2 py-2">
-                      Outstanding
-                    </td>
-                    <td className="border border-slate-300 px-2 text-right font-bold">
-                      {formatMoney(outstanding)}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-
-            {/* Next term / promotion */}
-            <div>
-              <h4 className="mb-2 bg-slate-900 px-3 py-2 text-center text-xs font-bold uppercase tracking-wide text-white">
-                Academic Information
-              </h4>
-
-              <div className="space-y-3 text-[10px]">
-
-                <div className="border border-slate-300 p-2">
-                  <p className="font-bold">
-                    Next Term Begins
-                  </p>
-
-                  <p className="mt-1">
-                    {data.nextTermBegins}
-                  </p>
-                </div>
-
-                <div className="border border-slate-300 p-2">
-                  <p className="font-bold">
-                    Promoted To
-                  </p>
-
-                  <p className="mt-1 font-black">
-                    {data.promotedTo || "N/A"}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Comments */}
-            <div>
-              <h4 className="mb-2 bg-slate-900 px-3 py-2 text-center text-xs font-bold uppercase tracking-wide text-white">
-                Comments
-              </h4>
-
-              <div className="space-y-2 text-[9px] leading-4">
-
-                <div>
-                  <span className="font-black">
-                    Class Teacher:
-                  </span>{" "}
-                  {data.comments.teacher}
-                </div>
-
-                <Signature
-                  src={data.comments.teacherSignature}
-                  name={data.comments.teacherName}
-                />
-
-                <div>
-                  <span className="font-black">
-                    Principal:
-                  </span>{" "}
-                  {data.comments.principal}
-                </div>
-
-                <Signature
-                  src={data.comments.principalSignature}
-                  name={data.comments.principalName}
-                />
-
-                <div>
-                  <span className="font-black">
-                    General:
-                  </span>{" "}
-                  {data.comments.general}
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* =====================================================
-              FOOTER
-          ====================================================== */}
-          <footer className="mt-7 border-t border-slate-300 pt-3 text-center text-[8px] text-slate-500">
-            <p>
-              © {new Date().getFullYear()} {data.school.name}. All rights
-              reserved.
-            </p>
-
-            <p className="mt-1">
-              Verify this result at{" "}
-              <span className="font-bold text-slate-700">
-                {data.school.website}/results
-              </span>
-            </p>
-          </footer>
-
-        </div>
-      </div>
-    </div>
-  );
-
-}
-
-export default ResultSheet;
 
 // main Portal
 function ResultPage() {
@@ -820,6 +35,7 @@ function ResultPage() {
     // include data as StudentResultData later to fetch from backend
     const [showResult, setShowResult] = useState(false);
     const [resultData, setResultData] = useState(null);
+    const [studentId, setStudentId] = useState("")
 
 
     async function getResultData() {
@@ -842,7 +58,11 @@ function ResultPage() {
         //fetching bock
         try {
           const res = await axios.get(url)
-          console.log(res.data)
+          setResultData(res.data)
+
+          const name = res.data.student.personalInfo
+          setStudentId(`${admissionNo}-${name.surname.toUpperCase()} ${name.otherName} ${term} term, ${session} Session Results.pdf`);
+          setShowResult(true)
         } catch (error) {
           if(error.response){
             console.log(error.response.data)
@@ -1279,7 +499,7 @@ useEffect(()  => {
                 <div className="mb-5 flex justify-end">
                     <SaveResultPDF
                         targetId="student-result-sheet"
-                        fileName="Daniel-Betiku-Term-Result.pdf"
+                        fileName={studentId || "results.pdf"}
                     />
                 </div>
             }
@@ -1288,12 +508,554 @@ useEffect(()  => {
             {/* ==========================================
                 RESULT SHEET
             ========================================== */}
-            {showResult &&
+            {
+      
+    showResult &&
                 // a data param would be passed in for result as resultData sheet
-                <ResultSheet />
+           <ResultViewer resultData={resultData} checkPin={pin} 
+            header={{
+                address: "GRA, Abuja Avenue, Jos Nigeria.",
+                contact: "0800 000 0000",
+                email: "school@email.com",
+                website: "www.acheivers-school.com"
+                }}/>
             }
 
         </div>
     );
 }
 export { ResultPage };
+
+
+
+//main viewer
+function ResultViewer({
+  resultData,
+  checkPin,
+  header = {},
+}) {
+  if (!resultData) {
+    return null;
+  }
+
+  const {
+    student,
+    studentClass,
+    term,
+    results = [],
+    otherRecords,
+  } = resultData;
+
+  const personalInfo = student?.personalInfo || {};
+
+  const currentFee = student?.currentFee?.find(
+    (fee) =>
+      fee.session === term?.session &&
+      fee.term === term?.termName
+  );
+
+  const totalFee = currentFee?.total ?? 0;
+  const paid = currentFee?.paid ?? 0;
+  const outstanding = Math.max(totalFee - paid, 0);
+
+  const formatDate = (date) => {
+    if (!date) return "";
+
+    const value = new Date(date);
+
+    return value.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+  };
+
+  const displayedPin = "******" + checkPin?.slice(-5) || "";
+
+const qrData = JSON.stringify({
+    regNo: student?.regNo || "",
+    name: `${personalInfo.surname || ""} ${personalInfo.firstName || ""}`,
+    pin: displayedPin,
+  });
+
+
+  return (
+    <div className="result-page">
+
+      {/* A4 RESULT SHEET */}
+      <div className="result-sheet" id="student-result-sheet">
+
+        {/* =========================
+            SCHOOL HEADER
+        ========================== */}
+        <header className="result-header">
+
+          <div className="school-logo-wrapper">
+            <img
+              src="/crest.png"
+              alt="School Crest"
+              className="school-crest"
+            />
+          </div>
+
+          <div className="school-header-content">
+
+            <h1 className="school-name">
+              Achievers International Schools
+            </h1>
+
+            <p className="school-motto">
+              For Outstanding Success with Discipline
+            </p>
+
+            {header.address && (
+              <p className="school-contact">
+                {header.address}
+              </p>
+            )}
+
+            <div className="school-contact-row">
+
+              {header.contact && (
+                <span>{header.contact}</span>
+              )}
+
+              {header.email && (
+                <span>{header.email}</span>
+              )}
+
+              {header.website && (
+                <span>{header.website}</span>
+              )}
+
+            </div>
+
+          </div>
+
+        </header>
+
+<div className="watermark-container">
+  <img
+    src="/crest.png" /* Make sure this path to your crest is correct */
+    alt="Watermark Crest"
+    className="watermark-crest"
+  />
+</div>
+        {/* =========================
+            RESULT TITLE
+        ========================== */}
+        <section className="result-title-section">
+
+          <div>
+            <h2>STUDENT ACADEMIC REPORT</h2>
+
+            <p>
+              {term?.termName || ""} Term Result
+            </p>
+          </div>
+
+          <div className="result-session">
+            <span>Session</span>
+            <strong>
+              {term?.session || ""}
+            </strong>
+          </div>
+
+        </section>
+
+{/* =========================
+    STUDENT INFORMATION
+========================== */}
+<section className="student-section">
+
+  {/* PASSPORT - LEFT */}
+  <div className="student-passport">
+
+    {student?.passportUrl ? (
+      <img
+        src={student.passportUrl}
+        alt="Student"
+      />
+    ) : (
+      <div className="passport-placeholder">
+        PASSPORT
+      </div>
+    )}
+
+  </div>
+
+
+  {/* STUDENT DETAILS - MIDDLE */}
+  <div className="student-details">
+
+    <div className="student-detail-row">
+      <span>Student Name</span>
+      <strong>
+        {personalInfo.surname}{" "}
+        {personalInfo.firstName}{" "}
+        {personalInfo.otherName}
+      </strong>
+    </div>
+
+    <div className="student-detail-row">
+      <span>Admission No.</span>
+      <strong>
+        {otherRecords?.admissionNo || ""}
+      </strong>
+    </div>
+
+    <div className="student-detail-row">
+      <span>Portal Reg. No.</span>
+      <strong>
+        {student?.regNo || ""}
+      </strong>
+    </div>
+
+    <div className="student-detail-row">
+      <span>Gender</span>
+      <strong>
+        {personalInfo.gender || ""}
+      </strong>
+    </div>
+
+    <div className="student-detail-row">
+      <span>Date of Birth</span>
+      <strong>
+        {formatDate(personalInfo.dob)}
+      </strong>
+    </div>
+
+    <div className="student-detail-row">
+      <span>Class</span>
+      <strong>
+        {student?.realClassNow?.mainClass ||
+          studentClass?.mainClass ||
+          ""}
+      </strong>
+    </div>
+
+    <div className="student-detail-row">
+      <span>Arm</span>
+      <strong>
+        {student?.realClassNow?.arm || ""}
+      </strong>
+    </div>
+
+    <div className="student-detail-row">
+      <span>Club/House</span>
+      <strong>
+        {student?.club_house || ""}
+      </strong>
+    </div>
+
+  </div>
+
+
+  {/* QR - RIGHT */}
+  <div className="student-qr">
+
+    <div className="qr-box">
+      <QRCodeSVG
+        value={otherRecords?.admissionNo || ""}
+        size={90}
+      />
+    </div>
+
+    <div className="qr-info">
+      <span>Admission No.</span>
+      <strong>
+        {otherRecords?.admissionNo || ""}
+      </strong>
+    </div>
+
+  </div>
+
+</section>
+
+
+        {/* =========================
+            PIN / RESULT STATUS
+        ========================== */}
+        <section className="result-meta">
+
+          <div>
+            <span>Result PIN</span>
+            <strong>{displayedPin}</strong>
+          </div>
+
+          <div>
+          </div>
+
+        </section>
+
+
+        {/* =========================
+            SUBJECT RESULTS
+        ========================== */}
+        <section className="results-section">
+
+          <div className="section-heading">
+            <h3>ACADEMIC PERFORMANCE</h3>
+          </div>
+
+          <table className="results-table">
+
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Subject</th>
+                <th>CA 1</th>
+                <th>CA 2</th>
+                <th>Exam</th>
+                <th>Total</th>
+                <th>Grade</th>
+                <th>Remark</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              {results.map((result, index) => (
+
+                <tr key={result._id || index}>
+
+                  <td>{index + 1}</td>
+
+                  <td className="subject-name">
+                    {result.subject}
+                  </td>
+
+                  <td>{result.ca1 ?? 0}</td>
+
+                  <td>{result.ca2 ?? 0}</td>
+
+                  <td>{result.exam ?? 0}</td>
+
+                  <td>
+                    <strong>
+                      {result.total ?? 0}
+                    </strong>
+                  </td>
+
+                  <td>
+                    <strong>
+                      {result.grade || "-"}
+                    </strong>
+                  </td>
+
+                  <td>
+                    {result.remark || "-"}
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </section>
+
+
+        {/* =========================
+            TRAITS
+        ========================== */}
+        <section className="traits-section">
+
+          <div className="trait-card">
+
+            <h3>PSYCHOMOTOR SKILLS</h3>
+
+            <div className="trait-list">
+
+              {Object.entries(
+                otherRecords?.psychoScores || {}
+              ).map(([key, value]) => (
+
+                <div
+                  className="trait-row"
+                  key={key}
+                >
+                  <span>{key}</span>
+                  <strong>{value}</strong>
+                </div>
+
+              ))}
+
+            </div>
+
+          </div>
+
+
+          <div className="trait-card">
+
+            <h3>AFFECTIVE DOMAIN</h3>
+
+            <div className="trait-list">
+
+              {Object.entries(
+                otherRecords?.affectiveScores || {}
+              ).map(([key, value]) => (
+
+                <div
+                  className="trait-row"
+                  key={key}
+                >
+                  <span>{key}</span>
+                  <strong>{value}</strong>
+                </div>
+
+              ))}
+
+            </div>
+
+          </div>
+
+        </section>
+
+
+        {/* =========================
+            FEE INFORMATION
+        ========================== */}
+        <section className="fee-section">
+
+          <div className="section-heading">
+            <h3>FEE INFORMATION</h3>
+          </div>
+
+          <div className="fee-grid">
+
+            <div>
+              <span>Total Fee</span>
+              <strong>
+                ₦{totalFee.toLocaleString()}
+              </strong>
+            </div>
+
+            <div>
+              <span>Paid</span>
+              <strong>
+                ₦{paid.toLocaleString()}
+              </strong>
+            </div>
+
+            <div>
+              <span>Outstanding</span>
+              <strong>
+                ₦{outstanding.toLocaleString()}
+              </strong>
+            </div>
+
+          </div>
+
+        </section>
+
+
+        {/* =========================
+            ACADEMIC INFORMATION
+        ========================== */}
+        <section className="academic-info">
+
+          <div>
+            <span>Promotion</span>
+
+            <strong>
+              {otherRecords?.promotion || "NIL"}
+            </strong>
+          </div>
+
+          <div>
+            <span>Next Term Begins</span>
+
+            <strong>
+              —
+            </strong>
+          </div>
+
+        </section>
+
+
+        {/* =========================
+            COMMENTS
+        ========================== */}
+        <section className="comments-section">
+
+          <div className="section-heading">
+            <h3>COMMENTS</h3>
+          </div>
+
+
+          <div className="comment-box">
+
+            <h4>Class Teacher's Comment</h4>
+
+            <p>
+              {otherRecords?.teacherComment?.text ||
+                "No comment"}
+            </p>
+
+            {otherRecords?.teacherComment?.signature && (
+              <div className="comment-signature">
+                Signature:{" "}
+                {otherRecords.teacherComment.signature}
+              </div>
+            )}
+
+          </div>
+
+
+          <div className="comment-box">
+
+            <h4>Principal's Comment</h4>
+
+            <p>
+              {otherRecords?.principalComment?.text ||
+                "No comment"}
+            </p>
+
+            {otherRecords?.principalComment?.signature && (
+              <div className="comment-signature">
+                Signature:{" "}
+                {otherRecords.principalComment.signature}
+              </div>
+            )}
+
+          </div>
+
+
+          {otherRecords?.generalComment && (
+            <div className="comment-box">
+
+              <h4>General Comment</h4>
+
+              <p>
+                {otherRecords.generalComment}
+              </p>
+
+            </div>
+          )}
+
+        </section>
+
+
+        {/* =========================
+            FOOTER
+        ========================== */}
+        <footer className="result-footer">
+
+          <span>
+            Generated: {formatDate(otherRecords?.createdAt)}
+          </span>
+
+          <span>
+            Official School Result
+          </span>
+
+        </footer>
+
+      </div>
+
+    </div>
+  );
+}

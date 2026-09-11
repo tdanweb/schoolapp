@@ -119,9 +119,6 @@ export default function StaffManagementForm({ initialStaff = {} }) {
   const getStaffToAssign = async () => {
     try {
       const res = await axios.get(`${mainApi}/user/get-staff`);
-
-   console.log(res.data.classes)
-   console.log(makeSubjects(res.data.classes))
    setSubAssignable(makeSubjects(res.data.classes))
 
       setStaffToAssign(res.data.staff || []);

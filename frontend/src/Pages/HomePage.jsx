@@ -177,7 +177,10 @@ function HomeView(){
 
     const getPost = `${mainApi}/setting/home-posts`
 
-    const [homePosts, setHomePosts] = useState([])
+    const [homePosts, setHomePosts] = useState([]);
+    const [updates, setUpdates] = useState([]);
+
+    const api2 = `${mainApi}/updates`
 
     const [showPoster, setShowPoster] = useState(false);
 
@@ -186,7 +189,12 @@ function HomeView(){
             const res = await axios.get(`${mainApi}/blog-posts?page=${1}&limit=${3}`);
           //  console.log(res.data.posts)
             setHomePosts(res.data.posts);
-        } catch (error) {
+
+
+            const update = await axios.get(`${api2}/${JSON.parse(localStorage.getItem("logged-user")).user}`)
+            setUpdates(update.data.updates)
+
+          } catch (error) {
             if(Error.response){
                 alert(error.response.data.msg)
             } else{
@@ -301,6 +309,7 @@ function HomeView(){
         }
     }
     const heads = "text-2xl md:text-4xl font-roboto shadow-md self-center font-bold text-slate-700 p-1"
+
 
     return <>
     {/*Update and CTA*/}
@@ -533,6 +542,62 @@ function HomeView(){
         <div className="p-4 rounded-sm shadow-md text-2xl text-orange-700 font-bold">
             <p>Announcements For Everyone</p>
             {/*Arrays of ANnouncements --- last 5*/}
+{updates && updates.length > 0 && (
+  <div className="space-y-3">
+    {updates.map((update) => (
+      <div
+        key={update._id}
+        className="rounded-2xl border border-gray-200 bg-white p-5 transition-shadow hover:shadow-sm"
+      >
+        <div className="flex gap-4">
+          {/* Update indicator */}
+          <div className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-blue-600" />
+
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
+              <h3 className="font-semibold text-gray-900">
+                {update.title}
+              </h3>
+
+              <span className="text-xs text-gray-400">
+                {new Date(update.createdAt).toLocaleDateString("en-NG", {
+                  day: "numeric",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </span>
+            </div>
+
+            <p className="mt-2 text-sm leading-6 text-gray-600">
+              {update.body}
+            </p>
+
+            <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
+              <span className="font-medium text-gray-700">
+                {update.poster?.displayName}
+              </span>
+
+              <span className="text-gray-300">•</span>
+
+              <span className="capitalize text-gray-400">
+                {update.poster?.staffType}
+              </span>
+
+              <span className="text-gray-300">•</span>
+
+              <span className="text-gray-400">
+                {new Date(update.createdAt).toLocaleTimeString("en-NG", {
+                  hour: "numeric",
+                  minute: "2-digit",
+                })}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+)}
         </div>
 
 

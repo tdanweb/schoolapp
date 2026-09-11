@@ -34,6 +34,7 @@ import { ImageSlider } from "../components/Media";
 import { CREST, Crest } from "../assets/Assets";
 import StudentRegForm from "../Users/StudentRegForm";
 import SchoolFooter from "../components/Footer";
+import DeveloperNotice from "../DevMemo";
 
 //image slides for HomePage
 const infoSlide = [
@@ -117,6 +118,7 @@ const academicLevels = [
 ];
 
 export default function LandingPage() {
+  const [showDevMemo, setShowDevMemo] = useState(true);
   const navigate = useNavigate();
   const [settings, setSettings] = useState({});
   const [email, setEmail] = useState("");
@@ -163,6 +165,7 @@ export default function LandingPage() {
 
   return (
     <div className="bg-slate-50 text-gray-800">
+
       {/* ================= NAVBAR ================= */}
       <nav className="fixed top-0 left-0 w-full z-50 backdrop-blur-md bg-[#0F4C81]/70 shadow">
         <div className="max-w-7xl mx-auto flex justify-between items-center px-6 py-4">
@@ -271,7 +274,24 @@ export default function LandingPage() {
           </div>
         </motion.div>
       </section>
+{showDevMemo && (
+  <div className="fixed inset-0 z-120 flex items-center justify-center bg-black/60 p-4">
+    <div className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-xl">
 
+      {/* Close */}
+      <button
+        onClick={() => setShowDevMemo(false)}
+        className="absolute right-4 top-4 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200"
+      >
+        ×
+      </button>
+
+      {/* Your notice component */}
+      <DeveloperNotice/>
+
+    </div>
+  </div>
+)}
       {/* ================= ACADEMICS ================= */}
       <section id="academics" className="py-20 bg-slate-50">
         <div className="max-w-7xl mx-auto px-6">
@@ -545,7 +565,6 @@ function UserForm({user}){
         try {
         const res = await axios.post(logInApi, {email, password});
     //    return console.log(res.data)
-        if(res.data.success){
            let data = res.data
          // localStorage.removeItem("active-user");
           setAlertMsg("Your are now Logged in. Click 'PROCEED' to access your portal");
@@ -566,15 +585,15 @@ function UserForm({user}){
             }
           ))
           //navigate("/app/*");
-            }     
-        } catch (error) {
+            
+        } 
+        catch (error) {
           if(error.response){
             setAlertMsg(error.response.data.msg);
-            setSuccess(false)
             setAlerter(true)
           } else{
             setAlertMsg("Opps! An Error occured in the Server.. Please try again.")
-            setSuccess(false); setAlerter(true);
+            setAlerter(true);
           }
         } finally {
           setLoading(false);
@@ -626,6 +645,12 @@ function UserForm({user}){
       setPassword("")
       setState("login")
     }
+
+
+    const closeIt = () => {
+      setAlerter(false);
+      setSuccess(false);
+    }
 return (
   <div 
     className="min-h-screen bg-cover bg-center bg-no-repeat py-10 px-4 sm:px-6 lg:px-8 flex items-center justify-center relative"
@@ -638,7 +663,7 @@ return (
       {/* PopUp Modal */}
       {alerter && (
         <PopUp
-          close={() => setAlerter(false)}
+          close={closeIt}
           message={
             <div className="w-full">
 
@@ -760,7 +785,7 @@ return (
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.3 }}
                 className="space-y-6"
-              >
+            >
                 <div>
                   <h3 className="text-2xl font-bold text-slate-800">
                     Create an Account

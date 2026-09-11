@@ -6,8 +6,42 @@ import {
   CalendarDays,
   ShieldCheck,
   Clock3,
+  UserRound,
+  BookOpen,
+  BriefcaseBusiness
 } from "lucide-react";
+
 import { motion } from "framer-motion";
+
+
+
+function StaffSubjectCard({ subject }) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm hover:shadow-md transition-shadow">
+      <div className="flex items-start gap-3">
+        <div className="w-10 h-10 shrink-0 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center">
+          <BookOpen className="w-5 h-5" />
+        </div>
+
+        <div className="min-w-0">
+          <h4 className="font-semibold text-slate-800 truncate">
+            {subject?.subject || "Unnamed Subject"}
+          </h4>
+
+          <p className="mt-1 text-xs font-medium text-blue-600">
+            {subject?.abb || "—"}
+          </p>
+
+          <p className="mt-2 text-xs text-slate-400 leading-5">
+            {subject?.faceView || "Assigned subject"}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
 
 export function StaffDashboard({
   staffData = null,
@@ -441,6 +475,283 @@ export function StaffDashboard({
 
         </motion.section>
       )}
+
+
+
+{staffData && (
+  <motion.section
+    initial={{ opacity: 0, y: 15 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.4 }}
+    className="space-y-5"
+  >
+
+    {/* =====================================================
+        STAFF DASHBOARD INFO
+        ===================================================== */}
+
+    <div className="flex items-center gap-2">
+      <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center">
+        <BriefcaseBusiness className="w-5 h-5" />
+      </div>
+
+      <div>
+        <h2 className="text-lg font-bold text-slate-800">
+          STAFF DASHBOARD INFO
+        </h2>
+
+        <p className="text-xs text-slate-500">
+          Staff profile and assigned academic responsibilities
+        </p>
+      </div>
+    </div>
+
+
+    {/* =====================================================
+        STAFF PROFILE
+        ===================================================== */}
+
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+      {/* PROFILE */}
+
+      <motion.div
+        initial={{ opacity: 0, x: -15 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.4 }}
+        className="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm"
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+
+          <div className="w-14 h-14 shrink-0 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center">
+            <UserRound className="w-7 h-7" />
+          </div>
+
+          <div className="min-w-0 flex-1">
+            <h3 className="text-lg font-bold text-slate-800">
+              {staffData.staff?.fullname || "Staff Name"}
+            </h3>
+
+            <p className="text-sm text-slate-500">
+              @{staffData.staff?.displayName || "—"}
+            </p>
+
+            <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400">
+              <span>
+                Staff ID:{" "}
+                <span className="font-medium text-slate-600">
+                  {staffData.staff?.staffId || "—"}
+                </span>
+              </span>
+
+              <span className="hidden sm:inline text-slate-300">
+                •
+              </span>
+
+              <span>
+                Reg. No:{" "}
+                <span className="font-medium text-slate-600">
+                  {staffData.staff?.regNo || "—"}
+                </span>
+              </span>
+            </div>
+          </div>
+
+          {/* ROLE — TEXT ONLY */}
+
+          <div className="sm:text-right">
+            <p className="text-[10px] uppercase tracking-wide font-semibold text-slate-400">
+              Access Level
+            </p>
+
+            <p className="mt-1 text-sm font-semibold text-blue-700">
+              {staffData.staff?.specialRoles?.chiefAdmin
+                ? "Chief Administrator"
+                : staffData.staff?.specialRoles?.isAdmin
+                ? "Administrator"
+                : "Staff"}
+            </p>
+          </div>
+
+        </div>
+      </motion.div>
+
+
+      {/* ASSIGNED CLASS */}
+
+      <motion.div
+        initial={{ opacity: 0, x: 15 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.4 }}
+        className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm"
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs font-medium text-slate-500">
+              Assigned Class
+            </p>
+
+            <h3 className="mt-1 text-xl font-bold text-slate-800">
+              {staffData.staff?.assignedClass?.classId || "Not Assigned"}
+            </h3>
+          </div>
+
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <School className="w-5 h-5" />
+          </div>
+        </div>
+
+        <div className="mt-4 space-y-1">
+          <p className="text-xs text-slate-400">
+            Main Class
+          </p>
+
+          <p className="text-sm font-semibold text-slate-700">
+            {staffData.staff?.assignedClass?.mainClass || "—"}
+          </p>
+
+          <p className="text-xs text-slate-400 mt-2">
+            Arm
+          </p>
+
+          <p className="text-sm font-semibold text-slate-700">
+            {staffData.staff?.assignedClass?.arm || "—"}
+          </p>
+        </div>
+      </motion.div>
+
+    </div>
+
+
+    {/* =====================================================
+        CLASS SUMMARY
+        ===================================================== */}
+
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+
+      <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <p className="text-xs text-slate-500">
+              Class Students
+            </p>
+
+            <p className="mt-1 text-2xl font-bold text-slate-800">
+              {staffData.totalStudents || 0}
+            </p>
+          </div>
+
+          <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-700 flex items-center justify-center">
+            <Users className="w-5 h-5" />
+          </div>
+        </div>
+
+        <p className="mt-2 text-[11px] text-slate-400">
+          Students in assigned class
+        </p>
+      </div>
+
+
+      <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <p className="text-xs text-slate-500">
+              Assigned Subjects
+            </p>
+
+            <p className="mt-1 text-2xl font-bold text-slate-800">
+              {staffData.staff?.assignedSubjects?.length || 0}
+            </p>
+          </div>
+
+          <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+            <BookOpen className="w-5 h-5" />
+          </div>
+        </div>
+
+        <p className="mt-2 text-[11px] text-slate-400">
+          Current teaching assignments
+        </p>
+      </div>
+
+
+      <div className="col-span-2 sm:col-span-1 bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <p className="text-xs text-slate-500">
+              Class Fees
+            </p>
+
+            <p className="mt-1 text-xl font-bold text-slate-800">
+              ₦{Number(
+                staffData.classFeeDetails?.paid || 0
+              ).toLocaleString("en-NG")}
+            </p>
+          </div>
+
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+            <WalletCards className="w-5 h-5" />
+          </div>
+        </div>
+
+        <p className="mt-2 text-[11px] text-slate-400">
+          Fees collected for assigned class
+        </p>
+      </div>
+
+    </div>
+
+
+    {/* =====================================================
+        ASSIGNED SUBJECTS
+        ===================================================== */}
+
+    <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5">
+
+      <div className="flex items-center justify-between gap-3 mb-4">
+        <div>
+          <h3 className="font-bold text-slate-800">
+            Assigned Subjects
+          </h3>
+
+          <p className="text-xs text-slate-400 mt-1">
+            Subjects currently assigned to this staff member
+          </p>
+        </div>
+
+        <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-3 py-1.5 rounded-lg">
+          {staffData.staff?.assignedSubjects?.length || 0} Subjects
+        </span>
+      </div>
+
+
+      {staffData.staff?.assignedSubjects?.length > 0 ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {staffData.staff.assignedSubjects.map((subject, index) => (
+            <StaffSubjectCard
+              key={`${subject?.abb || "subject"}-${index}`}
+              subject={subject}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="rounded-xl border border-dashed border-slate-300 bg-white p-6 text-center">
+          <BookOpen className="w-6 h-6 mx-auto text-slate-300" />
+
+          <p className="mt-2 text-sm font-medium text-slate-500">
+            No subjects assigned
+          </p>
+
+          <p className="mt-1 text-xs text-slate-400">
+            Teaching assignments will appear here.
+          </p>
+        </div>
+      )}
+
+    </div>
+
+  </motion.section>
+)}
     </div>
   );
 }
