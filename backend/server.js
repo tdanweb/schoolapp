@@ -18,9 +18,9 @@ connectDB();
 app.use(
   cors({
     origin: [
+      "https://schoolapp-zeta-five.vercel.app",
       "http://localhost:5174",
       "http://localhost:5173",
-      "https://schoolapp-zeta-five.vercel.app",
     ],
 
     credentials: true
