@@ -2,10 +2,9 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
-dotenv.config()
+dotenv.config();
 
-
-import bcrypt from "bcrypt"
+import bcrypt from "bcrypt";
 import connectDB from './db.js';
 import helmet from 'helmet';
 import morgan from 'morgan';
@@ -22,7 +21,6 @@ app.use(
       "http://localhost:5174",
       "http://localhost:5173",
     ],
-
     credentials: true
   })
 );
@@ -31,10 +29,6 @@ app.use(express.json());
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(cookieParser());
-app.use(cors({
-  origin: 'http://localhost:5174',
-  credentials: true  
-}));
 
 
 //using routes
