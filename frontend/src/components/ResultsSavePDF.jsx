@@ -5,6 +5,7 @@ import jsPDF from "jspdf";
 export default function SaveResultPDF({
   targetId = "student-result-sheet",
   fileName = "student-result.pdf",
+  btnText = "Save Result as PDF"
 }) {
   const [saving, setSaving] = useState(false);
 
@@ -72,7 +73,7 @@ export default function SaveResultPDF({
       disabled={saving}
       className="rounded-lg bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-60"
     >
-      {saving ? "Generating PDF..." : "Save Result as PDF"}
+      {saving ? "Generating PDF..." : btnText }
     </button>
   );
 }

@@ -4,7 +4,7 @@ import { mainApi } from "../../api";
 import { motion } from "framer-motion";
 import { FaToggleOn, FaToggleOff, FaSave, FaUpload, FaPlusCircle } from "react-icons/fa";
 import { session, terms } from "../../staticFiles";
-import { Input, Select } from "../StudentResgistration";
+import { Input, Select, FormSection } from "./StudentRegistration";
 import { Link } from "react-router-dom";
 const par = "text-md font-bold font-lato text-slate-800"
 const inp = "p-2 shadow-lg rounded-md focus:outline-none border border-slate-400"
@@ -36,12 +36,7 @@ const basicSettings = {
 };
 
 export default function ChiefSettingUI() {
-    const userAdmin = true;
-
-    if(!userAdmin){
-        return <div>Only Admin can Access this Link</div>
-    }
-
+  
     const api = `${mainApi}/setting`;
     const api4Admission = `${mainApi}/setting/admission`
 
@@ -50,7 +45,7 @@ export default function ChiefSettingUI() {
 
     const [setting, setSetting] = useState(basicSettings);
     const [alertMsg, setAlertMsg] = useState("")
-    const [allTerms,setAllTerms] = useState(null)
+    const [allTerms,setAllTerms] = useState([])
     const [thisTerm, setThisTerm] = useState(null);
     const [admissionSetting, setAdmissionSetting] = useState(initialAdmissionSettings);
 
@@ -176,7 +171,6 @@ export default function ChiefSettingUI() {
            // return console.log(newTerm);
 
             const res = await axios.post(term_api, newTerm);
-            console.log(res.data);
             setAlertMsg(res.data.msg)
             setAllTerms(prev => [...prev, res.data.term])
         } catch (err) {
@@ -1216,6 +1210,10 @@ function TermInfo({ termSetting = null }) {
     )
 }
 
+function StudentRegistration(){
+
+  return <div></div>
+}
 
 function InfoCard({ icon, label, value }) {
     return (

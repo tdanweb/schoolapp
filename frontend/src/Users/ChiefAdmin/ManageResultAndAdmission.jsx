@@ -42,7 +42,7 @@ export function ManageResultsAndAdmission() {
   async function getApplicants(){
     try {
       const res = await axios.get(`${mainApi}/applicants/all`);
-     // alert(res.data.msg);
+      console.log(res.data)
       setApplicants(res.data.applicants)
     } catch (error) {
       if(error.response){
@@ -224,6 +224,495 @@ export function ManageResultsAndAdmission() {
       <hr/>
       <button onClick={Upload}
       className="mt-4 p-2 flex items-center gap-4 rounded-md border border-gray-300 text-white shadow-lg cursor-pointer bg-sky-700">Upload Results <FaUpload size={18}/> </button>
+    </div>
+  );
+}
+
+
+export function ManageAdmission() {
+  const [applicants, setApplicants] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [alertMsg, setAlertMsg] = useState("");
+
+  // =========================
+  // GET APPLICANTS
+  // =========================
+  async function getApplicants() {
+    setLoading(true);
+
+    try {
+      const res = await axios.get(`${mainApi}/applicants/all`);
+
+      console.log("APPLICANTS:");
+      console.log(res.data);
+
+      setApplicants(res.data.applicants || []);
+
+    } catch (error) {
+      if (error.response) {
+        setAlertMsg(error.response.data.msg);
+      } else {
+        setAlertMsg("Network Error!");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    getApplicants();
+  }, []);
+
+
+  // =========================
+  // CHANGE ADMISSION STATUS
+  // =========================
+  const handleAdmissionStatusChange = (index, value) => {
+    const updated = [...applicants];
+
+    updated[index] = {
+      ...updated[index],
+      admissionStatus: value,
+
+      // Set admission date only when admitted
+      admissionDate:
+        value === "admitted"
+          ? updated[index].admissionDate || new Date().toISOString()
+          : "",
+    };
+
+    setApplicants(updated);
+  };
+
+
+  // =========================
+  // PROCESS ADMISSION
+  // =========================
+  const handleAdmission = async () => {
+
+    if (!applicants || applicants.length < 1) {
+      setAlertMsg("No applicants available.");
+      return;
+    }
+
+    const finalApplicants = applicants.map((app) => ({
+      ...app,
+
+      admissionDate:
+        app.admissionStatus === "admitted"
+          ? app.admissionDate || new Date().toISOString()
+          : "",
+    }));
+
+
+
+    try {
+      const api = `${mainApi}/applicants/admission?token=${JSON.parse(localStorage.getItem("logged-user")).token}`
+      const res= await axios.put(api, finalApplicants);
+      console.log(res.data);
+      setAlertMsg(res.data.msg)
+      setApplicants(finalApplicants)
+    } catch (error) {
+      if(error.response){
+        setAlertMsg(error.response.data.msg)
+      } else{
+        setAlertMsg("Network/Server Error!")
+      }      
+
+    }
+  };
+
+
+  // =========================
+  // FORMAT DATE
+  // =========================
+  const formatDate = (date) => {
+    if (!date) return "—";
+
+    return new Date(date).toLocaleDateString("en-NG", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+
+  return (
+    <div className="space-y-5">
+
+      {/* =========================
+          ALERT
+      ========================= */}
+      {alertMsg && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+
+          <div className="relative w-full max-w-md rounded-2xl bg-white p-6 text-center shadow-2xl">
+
+            {/* Close */}
+            <button
+              type="button"
+              onClick={() => setAlertMsg("")}
+              className="absolute right-4 top-3 text-2xl font-bold text-gray-400 hover:text-gray-800"
+            >
+              &times;
+            </button>
+
+            {/* Crest */}
+            <img
+              src="/crest.png"
+              alt="School Crest"
+              className="mx-auto mb-4 h-20 w-20 object-contain"
+            />
+
+            <p className="text-sm text-gray-700">
+              {alertMsg}
+            </p>
+
+          </div>
+
+        </div>
+      )}
+
+
+      {/* =========================
+          PAGE HEADER
+      ========================= */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+
+        <div>
+          <h2 className="text-lg font-bold text-slate-800">
+            Admission Processing
+          </h2>
+
+          <p className="text-xs text-slate-500">
+            Review applicants and make admission decisions.
+          </p>
+        </div>
+
+        <div className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-xs shadow-sm">
+
+          <span className="text-slate-500">
+            Applicants
+          </span>
+
+          <span className="ml-2 font-bold text-slate-800">
+            {applicants.length}
+          </span>
+
+        </div>
+
+      </div>
+
+
+      {/* =========================
+          LOADING
+      ========================= */}
+      {loading && (
+        <div className="rounded-xl border border-slate-200 bg-white p-6 text-center">
+
+          <p className="text-sm text-slate-500">
+            Loading applicants...
+          </p>
+
+        </div>
+      )}
+
+
+      {/* =========================
+          EMPTY STATE
+      ========================= */}
+      {!loading && applicants.length === 0 && (
+        <div className="rounded-xl border border-slate-200 bg-white p-8 text-center">
+
+          <p className="text-sm font-medium text-slate-600">
+            No applicants available.
+          </p>
+
+          <p className="mt-1 text-xs text-slate-400">
+            Applicants will appear here when available.
+          </p>
+
+        </div>
+      )}
+
+
+      {/* =========================
+          APPLICANTS TABLE
+      ========================= */}
+      {!loading && applicants.length > 0 && (
+
+        <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+
+          <table className="w-full min-w-[1050px] border-collapse text-left text-xs">
+
+            {/* TABLE HEADER */}
+            <thead className="border-b border-slate-200 bg-slate-100 text-[11px] font-bold uppercase tracking-wide text-slate-600">
+
+              <tr>
+
+                <th className="p-3">
+                  Reg No
+                </th>
+
+                <th className="p-3">
+                  Applicant
+                </th>
+
+                <th className="p-3">
+                  Gender
+                </th>
+
+                <th className="p-3">
+                  Exam Score
+                </th>
+
+                <th className="p-3">
+                  Rating
+                </th>
+
+                <th className="p-3">
+                  Exam Status
+                </th>
+
+                <th className="p-3">
+                  Admission Status
+                </th>
+
+                <th className="p-3">
+                  Admission Date
+                </th>
+
+              </tr>
+
+            </thead>
+
+
+            {/* TABLE BODY */}
+            <tbody className="divide-y divide-slate-200">
+
+              {applicants.map((app, index) => {
+
+                const exam = app.examinationDetails || {};
+
+                const admissionStatus =
+                  app.admissionStatus || "under review";
+
+                const isAdmitted =
+                  admissionStatus === "admitted";
+
+                const isNotAdmitted =
+                  admissionStatus === "not admitted";
+
+                const isProcessing =
+                  admissionStatus === "processing";
+
+                return (
+
+                  <tr
+                    key={app._id}
+                    className="transition hover:bg-slate-50"
+                  >
+
+                    {/* REG NO */}
+                    <td className="p-3">
+
+                      <span className="font-mono font-bold text-sky-800">
+                        {app.regNo}
+                      </span>
+
+                    </td>
+
+
+                    {/* APPLICANT */}
+                    <td className="p-3">
+
+                      <div>
+
+                        <p className="font-semibold text-slate-800">
+                          {app.fullName}
+                        </p>
+
+                        <p className="mt-0.5 text-[10px] text-slate-400">
+                          {app._id}
+                        </p>
+
+                      </div>
+
+                    </td>
+
+
+                    {/* GENDER */}
+                    <td className="p-3 capitalize">
+                      {app.gender || "—"}
+                    </td>
+
+
+                    {/* EXAM SCORE */}
+                    <td className="p-3">
+
+                      <span
+                        className={
+                          exam.status === "absent"
+                            ? "font-bold text-red-600"
+                            : "font-bold text-slate-700"
+                        }
+                      >
+                        {exam.status === "absent"
+                          ? "ABSENT"
+                          : exam.score ?? 0}
+                      </span>
+
+                    </td>
+
+
+                    {/* RATING */}
+                    <td className="p-3">
+
+                      <span className="font-bold text-slate-700">
+                        {exam.rating ?? 0}%
+                      </span>
+
+                    </td>
+
+
+                    {/* EXAM STATUS */}
+                    <td className="p-3">
+
+                      <span
+                        className={`inline-flex rounded-full px-2.5 py-1 text-[10px] font-bold capitalize
+                        ${
+                          exam.status === "result out"
+                            ? "bg-emerald-50 text-emerald-700"
+
+                            : exam.status === "absent"
+                            ? "bg-red-50 text-red-700"
+
+                            : exam.status === "awaiting result"
+                            ? "bg-amber-50 text-amber-700"
+
+                            : "bg-slate-100 text-slate-600"
+                        }`}
+                      >
+                        {exam.status || "pending"}
+                      </span>
+
+                    </td>
+
+
+                    {/* ADMISSION STATUS */}
+                    <td className="p-3">
+
+                      <select
+                        value={admissionStatus}
+                        onChange={(e) =>
+                          handleAdmissionStatusChange(
+                            index,
+                            e.target.value
+                          )
+                        }
+                        className={`rounded-md border px-3 py-2 text-xs font-bold capitalize outline-none
+                        ${
+                          isAdmitted
+                            ? "border-emerald-300 bg-emerald-50 text-emerald-700"
+
+                            : isNotAdmitted
+                            ? "border-red-300 bg-red-50 text-red-700"
+
+                            : isProcessing
+                            ? "border-sky-300 bg-sky-50 text-sky-700"
+
+                            : "border-amber-300 bg-amber-50 text-amber-700"
+                        }`}
+                      >
+
+                        <option value="under review">
+                          Under Review
+                        </option>
+
+                        <option value="processing">
+                          Processing
+                        </option>
+
+                        <option value="admitted">
+                          Admitted
+                        </option>
+
+                        <option value="not admitted">
+                          Not Admitted
+                        </option>
+
+                      </select>
+
+                    </td>
+
+
+                    {/* ADMISSION DATE */}
+                    <td className="p-3">
+
+                      {isAdmitted ? (
+
+                        <div>
+
+                          <p className="font-semibold text-emerald-700">
+                            {formatDate(
+                              app.admissionDate || new Date()
+                            )}
+                          </p>
+
+                          <p className="mt-0.5 text-[10px] text-slate-400">
+                            Admission date
+                          </p>
+
+                        </div>
+
+                      ) : (
+
+                        <span className="text-slate-400">
+                          —
+                        </span>
+
+                      )}
+
+                    </td>
+
+                  </tr>
+
+                );
+              })}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      )}
+
+
+      {/* =========================
+          BOTTOM ACTION
+      ========================= */}
+      {applicants.length > 0 && (
+
+        <div className="flex flex-col gap-3 border-t border-slate-200 pt-4 sm:flex-row sm:items-center sm:justify-between">
+
+          <p className="text-xs text-slate-500">
+            Changes are currently prepared locally.
+          </p>
+
+          <button
+            type="button"
+            onClick={handleAdmission}
+            className="rounded-lg bg-sky-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-sky-800 active:scale-[0.98]"
+          >
+            Process Admission
+          </button>
+
+        </div>
+
+      )}
+
     </div>
   );
 }

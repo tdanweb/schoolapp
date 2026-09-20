@@ -859,7 +859,7 @@ const qrData = JSON.stringify({
 
 
         {/* =========================
-            TRAITS
+            TRAITS AND FEE SECTION
         ========================== */}
         <section className="traits-section">
 
@@ -912,9 +912,6 @@ const qrData = JSON.stringify({
 
           </div>
 
-        </section>
-
-
         {/* =========================
             FEE INFORMATION
         ========================== */}
@@ -950,6 +947,8 @@ const qrData = JSON.stringify({
           </div>
 
         </section>
+        </section>
+
 
 
         {/* =========================

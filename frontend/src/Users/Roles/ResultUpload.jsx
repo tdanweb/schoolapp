@@ -5,7 +5,6 @@ import { FaToggleOff, FaToggleOn } from "react-icons/fa";
 import { gradeScaleI, gradeScaleII, gradeScaleIII } from "../../dataBase";
 
 export default function ResultEntry() {
-
 const [gradeSystem, setGradeSystem] = useState(gradeScaleI);
 const [showGradeScale, setShowGradeScale] = useState(false);
   const [alertMsg, setAlertMsg] = useState("");

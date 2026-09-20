@@ -17,7 +17,8 @@ import { faEnvelope, faGraduationCap,
   FaArrowRight,
   FaFile,
   FaFileAlt,
-  FaCalendarAlt
+  FaCalendarAlt,
+  FaToolbox
 } from "react-icons/fa";
 import { Input, PopUp } from "../components/LogInForm";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -238,7 +239,12 @@ export default function LandingPage() {
             >
               Apply Now <FaGraduationCap size={18} />
             </Link>
-
+            <button
+              onClick={() => setShowDevMemo(true)}
+              className="bg-pink-300 flex items-center gap-2 hover:bg-yellow-500 transition p-3 px-4 rounded-full font-semibold text-slate-900"
+            >
+              Site Guide <FaToolbox size={18} />
+            </button>
             <Link
               to="/sign-in"
               className="bg-teal-600 flex items-center gap-2 hover:bg-teal-700 text-white transition p-3 px-4 rounded-full font-semibold"
@@ -505,469 +511,494 @@ export default function LandingPage() {
 }
 
 
+export function UserForm({ user }) {
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-//signing forms
-function UserForm({user}){
-    const [loading, setLoading] = useState(false);
-    const navigate = useNavigate();
+  const [state, setState] = useState("login");
+  
+  // API endpoints
+  const logInApi = `${mainApi}/user/login`;
+  const registerApi = `${mainApi}/user`;
 
-    const [state, setState] = useState("login")
-    //register and sign in
-    //sign in
-    const logInApi = mainApi + "/user/login"
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("")
-    const [show, setShow] = useState(false);
+  // Common fields
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [show, setShow] = useState(false);
 
-    //user registration - additional
-    //regNo set at backend
-    const [newUserObj, setNewUserObj] = useState(null)
-    const registerApi = mainApi + "/user"
-    const [lastname, setLastname] = useState("");
-    const [fullname, setFullname] = useState("")
-    const [phone, setPhone] = useState("");
-    const [password2, setPassword2] = useState("")
-    const [thisUser, setThisUser] = useState("staff");
-    const [passport, setPassport] = useState(""); // 
-        //setup user as active and refresh
+  // User registration fields
+  const [newUserObj, setNewUserObj] = useState(null);
+  const [lastname, setLastname] = useState("");
+  const [fullname, setFullname] = useState("");
+  const [phone, setPhone] = useState("");
+  const [password2, setPassword2] = useState("");
+  const [thisUser, setThisUser] = useState("staff");
+  const [passport, setPassport] = useState("");
+
+  // Alert & Navigation States
+  const [alerter, setAlerter] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [alertMsg, setAlertMsg] = useState("");
+  const [loggedIn, setloggedIn] = useState(false);
 
 
-    //functions
-    const [alerter, setAlerter] = useState(false);
-    const [success, setSuccess] = useState(false)
-    const [alertMsg, setAlertMsg] = useState("");
-    const [loggedIn, setloggedIn] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("")
+  const [successMsg, setSuccessMsg] = useState("")
 
-    useEffect(() => {
-      const user = JSON.parse(localStorage.getItem("logged-user"));
-      if(user) {
-        const date = new Date().getTime();
-        const diff = user.date - date;
-        if(diff < user.duration) {
-          setAlertMsg(`Welcome Back, ${user.fullname}! Your session has expired. Please log in again. Kindly re-enter your password`);
-          setEmail(user.user);
-        } else {
-        setloggedIn(true); 
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("logged-user"));
+
+    if (storedUser) {
+      const now = new Date().getTime();
+      const diff = now - storedUser.date; // Corrected elapsed time calculation
+
+      if (diff > storedUser.duration) {
+        setAlertMsg(
+          `Welcome Back, ${storedUser.fullname}! Your session has expired. Please log in again.`
+        );
+        setEmail(storedUser.user || "");
+      } else {
+        setloggedIn(true);
         navigate("/app");
-        }
+        return;
       }
-    }, [])
 
-    const clearForm = () => {
-      setLastname(""); setFullname(""); setPhone("");
-      setPassword2(""); setThisUser("");
-      setPassport(""); setPassword("")
-    };
-
-    async function logUserIn (e) {
-        e.preventDefault();
-        setLoading(true);
-        try {
-        const res = await axios.post(logInApi, {email, password});
-    //    return console.log(res.data)
-           let data = res.data
-         // localStorage.removeItem("active-user");
-          setAlertMsg("Your are now Logged in. Click 'PROCEED' to access your portal");
-          setSuccess(true)
-          setAlerter(true)
-          clearForm();
-          setloggedIn(true)
-          localStorage.setItem("logged-user", JSON.stringify(
-            {
-              user: data.user, 
-              thisUser: data.thisUser, 
-              date: new Date().getTime(),
-              token: data.token,
-              role: data.role,
-              id: data.id,
-              fullname: data.name, 
-              duration: 1000*60*60*24  //max one day...
+      // Verify user token if available
+      if (storedUser.token) {
+        async function confirmUser() {
+          try {
+            const res = await axios.get(`${mainApi}/user/auth?token=${storedUser.token}`);
+            if (res.data) {
+              navigate("/app");
             }
-          ))
-          //navigate("/app/*");
-            
-        } 
-        catch (error) {
-          if(error.response){
-            setAlertMsg(error.response.data.msg);
-            setAlerter(true)
-          } else{
-            setAlertMsg("Opps! An Error occured in the Server.. Please try again.")
-            setAlerter(true);
+          } catch (error) {
+            localStorage.removeItem("logged-user");
           }
-        } finally {
-          setLoading(false);
         }
-    }
 
-    //signup 
-    async function registerUser(e){
-        e.preventDefault();
-        if(password !== password2){
-            return alert("Password doesn't match, Please Check Again!")
-        };
-
-        setLoading(true);
-        try {
-        const newUser = await axios.post(registerApi, {
-            email, password, lastname, fullname, phone, thisUser, passport
-        });
-        
-        if(newUser.data.success){
-            console.log(newUser.data);
-            setNewUserObj(newUser.data); //has message, savedUser and jwt later
-             //    const res = await axios.post(logInApi, {email, password});
-            setAlertMsg("You have successfully registered with unique ID/REG NO: " + newUser.data.user.regNo + " Click PROCEED to access your account.. You may also have to wait for Account Approval")
-            setAlerter(!alerter)
-            setSuccess(true);
-            clearForm()
-        } 
+        confirmUser();
       }
-      catch (error) {
-          if(error.response){
-            alert(error.response.data.message)
-          }else{
-            alert("Network Error.. Please Try Again")
-          }
-        } finally {
-          setLoading(false);
-        }
+    }
+  }, [navigate]);
+
+  const clearForm = () => {
+    setLastname("");
+    setFullname("");
+    setPhone("");
+    setPassword2("");
+    setThisUser("staff");
+    setPassport("");
+    setPassword("");
+  };
+
+  async function logUserIn(e) {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const res = await axios.post(logInApi, { email, password });
+      let data = res.data;
+
+
+      setErrorMsg("")
+      setSuccessMsg("You are now Logged in. Click 'PROCEED' to access your portal");
+      clearForm();
+      setloggedIn(true);
+
+      localStorage.setItem(
+        "logged-user",
+        JSON.stringify({
+          user: data.user,
+          thisUser: data.thisUser,
+          date: new Date().getTime(),
+          token: data.token,
+          role: data.role,
+          id: data.id,
+          fullname: data.name,
+          duration: 1000 * 60 * 60 * 24, // 1 day expiration
+        })
+      );
+    } catch (error) {
+      setSuccessMsg("")
+      if (error.response) {
+        setErrorMsg(error.response.data.msg || "Invalid Credentials");
+      } else {
+        setErrorMsg("Oops! An Error occurred on the Server. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function registerUser(e) {
+    e.preventDefault();
+    if (password !== password2) {
+      return alert("Passwords do not match, Please Check Again!");
     }
 
-    const toLogIn = () => {
-      //check if account is approved!
-      loggedIn && navigate("/app")
+    setLoading(true);
+    try {
+      const newUser = await axios.post(registerApi, {
+        email,
+        password,
+        lastname,
+        fullname,
+        phone,
+        thisUser,
+        passport,
+      });
+
+      if (newUser.data.success) {
+        setNewUserObj(newUser.data);
+        setErrorMsg("")
+        setSuccessMsg(
+          "You have successfully registered with unique ID/REG NO: " +
+            newUser.data.user.regNo +
+            ". Click PROCEED to access your account."
+        );
+
+        clearForm();
+
+setTimeout(() => {
+  navigate("/sign-in");
+}, 2000);
+
+      }
+    } catch (error) {
+      setSuccessMsg("")
+      if (error.response) {
+        setErrorMsg(error.response.data.message);
+      } else {
+        setErrorMsg("Network Error.. Please Try Again");
+      }
+    } finally {
+      setLoading(false);
     }
+  }
 
-    function setToLogin(){
-      setAlertMsg("");
-      setAlerter(false);
-      setPassword("")
-      setState("login")
+  const toLogIn = () => {
+    if (loggedIn) {
+      navigate("/app");
+    } else {
+      setToLogin();
     }
+  };
 
+  function setToLogin() {
+    setSuccessMsg("");
+    setErrorMsg("");
+    setPassword("");
+    setState("login");
+  }
 
-    const closeIt = () => {
-      setAlerter(false);
-      setSuccess(false);
-    }
-return (
-  <div 
-    className="min-h-screen bg-cover bg-center bg-no-repeat py-10 px-4 sm:px-6 lg:px-8 flex items-center justify-center relative"
-    style={{ backgroundImage: `url('/school-hall.jpg')` }}
-  >
-    {/* Dark overlay behind form card for high contrast readability */}
-    <div className="absolute inset-0 bg-black/45 backdrop-blur-[2px]" />
-    <div className="w-full relative z-10">
+  const closeIt = () => {
+    setSuccessMsg("")
+    setErrorMsg("")
+  };
 
-      {/* PopUp Modal */}
-      {alerter && (
-        <PopUp
-          close={closeIt}
-          message={
-            <div className="w-full">
+  return (
+    <div
+      className="min-h-screen bg-cover bg-center bg-no-repeat py-10 px-4 sm:px-6 lg:px-8 flex items-center justify-center relative"
+      style={{ backgroundImage: `url('/school-hall.jpg')` }}
+    >
+      <div className="absolute inset-0 bg-black/45 backdrop-blur-[2px]" />
+      <div className="w-full relative z-10">
+        
+        {/* PopUp Modal */}
+        {(successMsg || errorMsg) && (
+          <PopUp
+            close={closeIt}
+            message={
+              <div className="w-full">
+                {/* Status Header */}
+                <div
+                  className={`relative px-6 pt-7 pb-6 ${
+                    successMsg
+                      ? "bg-emerald-50 dark:bg-emerald-950/30"
+                      : "bg-rose-50 dark:bg-rose-950/30"
+                  }`}
+                >
+                  <div className="flex justify-center mb-4">
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{
+                        delay: 0.1,
+                        duration: 0.3,
+                        type: "spring",
+                        stiffness: 180,
+                      }}
+                      className={`w-16 h-16 rounded-full flex items-center justify-center ${
+                        successMsg
+                          ? "bg-emerald-100 dark:bg-emerald-900/60"
+                          : "bg-rose-100 dark:bg-rose-900/60"
+                      }`}
+                    >
+                      {successMsg ? (
+                        <FaCheckCircle className="text-emerald-500" size={34} />
+                      ) : (
+                        <FaTimes className="text-rose-500" size={30} />
+                      )}
+                    </motion.div>
+                  </div>
 
-              {/* Status Header */}
-              <div
-                className={`relative px-6 pt-7 pb-6 ${
-                  success
-                    ? "bg-emerald-50 dark:bg-emerald-950/30"
-                    : "bg-rose-50 dark:bg-rose-950/30"
-                }`}
-              >
-                {/* Status Icon */}
-                <div className="flex justify-center mb-4">
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{
-                      delay: 0.1,
-                      duration: 0.3,
-                      type: "spring",
-                      stiffness: 180,
-                    }}
-                    className={`w-16 h-16 rounded-full flex items-center justify-center ${
-                      success
-                        ? "bg-emerald-100 dark:bg-emerald-900/60"
-                        : "bg-rose-100 dark:bg-rose-900/60"
-                    }`}
-                  >
-                    {success ? (
-                      <FaCheckCircle
-                        className="text-emerald-500"
-                        size={34}
-                      />
-                    ) : (
-                      <FaTimes
-                        className="text-rose-500"
-                        size={30}
-                      />
-                    )}
-                  </motion.div>
+                  <div className="text-center">
+                    <h2
+                      className={`text-xl font-bold ${
+                        successMsg
+                          ? "text-emerald-700 dark:text-emerald-400"
+                          : "text-rose-700 dark:text-rose-400"
+                      }`}
+                    >
+                      {successMsg ? "Operation Successful" : "Operation Failed"}
+                    </h2>
+
+                    <p className="mt-1 text-xs font-medium uppercase tracking-wider text-slate-400">
+                      {successMsg
+                        ? "Your request was completed successfully"
+                        : "Something went wrong"}
+                    </p>
+                  </div>
                 </div>
 
-                {/* Heading */}
-                <div className="text-center">
-                  <h2
-                    className={`text-xl font-bold ${
-                      success
-                        ? "text-emerald-700 dark:text-emerald-400"
-                        : "text-rose-700 dark:text-rose-400"
-                    }`}
-                  >
-                    {success
-                      ? "Operation Successful"
-                      : "Operation Failed"}
-                  </h2>
-
-                  <p className="mt-1 text-xs font-medium uppercase tracking-wider text-slate-400">
-                    {success
-                      ? "Your request was completed successfully"
-                      : "Something went wrong"}
+                {/* Body Message */}
+                <div className="px-6 py-5">
+                  <p className="text-center text-sm md:text-base leading-6 text-slate-600 dark:text-slate-300">
+                    {successMsg ? successMsg : errorMsg}
                   </p>
                 </div>
+
+                {/* Action Footer */}
+                <div className="px-6 pb-6">
+                  {successMsg ? (
+                    <button
+                      type="button"
+                      onClick={state === "login" ? toLogIn : setToLogin}
+                      className="w-full px-5 py-3 bg-sky-700 hover:bg-sky-800 text-white rounded-xl text-sm font-semibold transition-all shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      PROCEED
+                      <FaArrowRight size={15} />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={closeIt} // Fixed infinite loop bug here
+                      className="w-full px-5 py-3 bg-rose-700 hover:bg-rose-800 text-white rounded-xl text-sm font-semibold transition-all shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      CLOSE
+                      <FaTimes size={14} />
+                    </button>
+                  )}
+                </div>
+              </div>
+            }
+          />
+        )}
+
+        {/* Main Form Container */}
+        <div className="max-w-3xl mx-auto bg-white/95 backdrop-blur-md shadow-2xl rounded-2xl border border-slate-100/50 overflow-hidden">
+          <div className="flex items-center gap-4 px-6 py-5 bg-slate-50/80 border-b border-slate-200">
+            <Crest />
+            <h4 className="font-bold text-lg md:text-xl text-slate-800">
+              Achievers International Schools
+            </h4>
+          </div>
+
+          <div className="p-6 md:p-10">
+            <form
+              onSubmit={state === "login" ? logUserIn : registerUser}
+              className="space-y-6"
+            >
+              {/* Register Controls */}
+              {state === "register" && (
+                <motion.div
+                  initial={{ x: 20, opacity: 0 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="space-y-6"
+                >
+                  <div>
+                    <h3 className="text-2xl font-bold text-slate-800">
+                      Create an Account
+                    </h3>
+                    <p className="text-sm text-slate-500 mt-1">
+                      Register as Staff or Parent
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Input
+                      type="email"
+                      title="Email"
+                      icon={faEnvelopeCircleCheck}
+                      required
+                      val={email}
+                      click={(e) => setEmail(e.target.value)}
+                    />
+
+                    <Input
+                      type="text"
+                      title="Full Name"
+                      icon={faUserCheck}
+                      required
+                      val={fullname}
+                      click={(e) => setFullname(e.target.value)}
+                    />
+
+                    <Input
+                      type="text"
+                      title="Last Name"
+                      icon={faUserCheck}
+                      required
+                      val={lastname}
+                      click={(e) => setLastname(e.target.value)}
+                    />
+
+                    <Input
+                      type="tel"
+                      title="Phone Number"
+                      icon={faPhone}
+                      required
+                      val={phone}
+                      click={(e) => setPhone(e.target.value)}
+                    />
+
+                    <Input
+                      type={!show ? "password" : "text"}
+                      title="Create Password"
+                      icon={faKey}
+                      required
+                      val={password}
+                      click={(e) => setPassword(e.target.value)}
+                    />
+
+                    <Input
+                      type={!show ? "password" : "text"}
+                      title="Confirm Password"
+                      icon={faKey}
+                      required
+                      val={password2}
+                      click={(e) => setPassword2(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="block text-sm font-medium text-slate-700">
+                      Select Category
+                    </label>
+                    <select
+                      value={thisUser}
+                      onChange={(e) => setThisUser(e.target.value)}
+                      className="w-full border border-slate-300 rounded-lg px-3.5 py-2.5 text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
+                    >
+                      <option value="staff">Staff</option>
+                      <option value="parent">Parent</option>
+                    </select>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Login Controls */}
+              {state === "login" && (
+                <motion.div
+                  initial={{ x: -20, opacity: 0 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className="space-y-6"
+                >
+                  <div>
+                    <h3 className="text-2xl font-bold text-slate-800">Sign In</h3>
+                    <p className="text-sm text-slate-500 mt-1">
+                      Access portal for Staff, Parents, and Students
+                    </p>
+                  </div>
+
+                  <div className="space-y-4">
+                    <Input
+                      type="text"
+                      title="Email or Reg No"
+                      icon={faEnvelopeCircleCheck}
+                      required
+                      val={email}
+                      click={(e) => setEmail(e.target.value)}
+                    />
+
+                    <Input
+                      type={!show ? "password" : "text"}
+                      title="Password"
+                      icon={faKey}
+                      required
+                      val={password}
+                      click={(e) => setPassword(e.target.value)}
+                    />
+                  </div>
+                </motion.div>
+              )}
+
+              {/* Password Visibility Toggle */}
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setShow(!show)}
+                  className="inline-flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-600 hover:text-slate-900 transition"
+                >
+                  <FontAwesomeIcon icon={show ? faEye : faEyeSlash} />
+                  <span>{show ? "Hide Password" : "Show Password"}</span>
+                </button>
               </div>
 
-              {/* Message */}
-              <div className="px-6 py-5">
-                <p className="text-center text-sm md:text-base leading-6 text-slate-600 dark:text-slate-300">
-                  {alertMsg}
-                </p>
-              </div>
-
-              {/* Footer */}
-              <div className="px-6 pb-6">
-                {success ? (
-                  <button
-                    type="button"
-                    onClick={state ==="login" ? toLogIn : setToLogin}
-                    className="w-full px-5 py-3 bg-sky-700 hover:bg-sky-800 text-white rounded-xl text-sm font-semibold transition-all shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    PROCEED
-                    <FaArrowRight size={15} />
-                  </button>
+              {/* Mode Toggle Banner */}
+              <div className="bg-slate-50 border border-slate-200/80 rounded-lg p-3.5 text-sm text-slate-600 text-center">
+                {state === "login" ? (
+                  <span>
+                    New User?{" "}
+                    <button
+                      type="button"
+                      onClick={() => setState("register")}
+                      disabled={loading}
+                      className="text-sky-700 font-semibold hover:underline ml-1 cursor-pointer"
+                    >
+                      Create Account
+                    </button>
+                  </span>
                 ) : (
-                  <button
-                    type="button"
-                    onClick={setAlertMsg("")}
-                    className="w-full px-5 py-3 bg-rose-700 hover:bg-rose-800 text-white rounded-xl text-sm font-semibold transition-all shadow-md hover:shadow-lg active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    CLOSE
-                    <FaTimes size={14} />
-                  </button>
+                  <span>
+                    Already have an account?{" "}
+                    <button
+                      type="button"
+                      disabled={loading}
+                      onClick={() => setState("login")}
+                      className="text-sky-700 font-semibold hover:underline ml-1 cursor-pointer"
+                    >
+                      Sign In
+                    </button>
+                  </span>
                 )}
               </div>
 
-            </div>
-          }
-        />
-      )}
+              {/* Submit Button */}
+              <div className="pt-2 space-y-3">
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3 px-6 rounded-lg bg-sky-700 hover:bg-sky-800 disabled:opacity-50 text-white font-medium text-base shadow-md hover:shadow-lg transition cursor-pointer"
+                >
+                  {loading
+                    ? "Processing..."
+                    : state === "login"
+                    ? "Sign In"
+                    : "Create Account"}
+                </button>
 
-      {/* Main Form Card */}
-      <div className="max-w-3xl mx-auto bg-white/95 backdrop-blur-md shadow-2xl rounded-2xl border border-slate-100/50 overflow-hidden">
-        {/* School Header */}
-        <div className="flex items-center gap-4 px-6 py-5 bg-slate-50/80 border-b border-slate-200">
-          <Crest />
-          <h4 className="font-bold text-lg md:text-xl text-slate-800">
-            Achievers International Schools
-          </h4>
-        </div>
-
-        <div className="p-6 md:p-10">
-          <form
-            onSubmit={state === "login" ? logUserIn : registerUser}
-            className="space-y-6"
-          >
-            {/* Register Section */}
-            {state === "register" && (
-              <motion.div
-                initial={{ x: 20, opacity: 0 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-6"
-            >
-                <div>
-                  <h3 className="text-2xl font-bold text-slate-800">
-                    Create an Account
-                  </h3>
-                  <p className="text-sm text-slate-500 mt-1">
-                    Register as Staff or Parent
+                {state !== "login" && (
+                  <p className="text-xs text-center text-slate-500 font-medium">
+                    Note: New accounts require administrative approval before activation.
                   </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Input
-                    type="email"
-                    title="Email"
-                    icon={faEnvelopeCircleCheck}
-                    required
-                    val={email}
-                    click={(e) => setEmail(e.target.value)}
-                  />
-
-                  <Input
-                    type="text"
-                    title="Full Name"
-                    icon={faUserCheck}
-                    required
-                    val={fullname}
-                    click={(e) => setFullname(e.target.value)}
-                  />
-
-                  <Input
-                    type="text"
-                    title="Last Name"
-                    icon={faUserCheck}
-                    required
-                    val={lastname}
-                    click={(e) => setLastname(e.target.value)}
-                  />
-
-                  <Input
-                    type="tel"
-                    title="Phone Number"
-                    icon={faPhone}
-                    required
-                    val={phone}
-                    click={(e) => setPhone(e.target.value)}
-                  />
-
-                  <Input
-                    type={!show ? "password" : "text"}
-                    title="Create Password"
-                    icon={faKey}
-                    required
-                    val={password}
-                    click={(e) => setPassword(e.target.value)}
-                  />
-
-                  <Input
-                    type={!show ? "password" : "text"}
-                    title="Confirm Password"
-                    icon={faKey}
-                    required
-                    val={password2}
-                    click={(e) => setPassword2(e.target.value)}
-                  />
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="block text-sm font-medium text-slate-700">
-                    Select Category
-                  </label>
-                  <select
-                    value={thisUser}
-                    onChange={(e) => setThisUser(e.target.value)}
-                    className="w-full border border-slate-300 rounded-lg px-3.5 py-2.5 text-slate-700 bg-white focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 transition"
-                  >
-                    <option value="staff">Staff</option>
-                    <option value="parent">Parent</option>
-                  </select>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Login Section */}
-            {state === "login" && (
-              <motion.div
-                initial={{ x: -20, opacity: 0 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-6"
-              >
-                <div>
-                  <h3 className="text-2xl font-bold text-slate-800">Sign In</h3>
-                  <p className="text-sm text-slate-500 mt-1">
-                    Access portal for Staff, Parents, and Students
-                  </p>
-                  <div className="text-indigo-600 bg-indigo-100 text-[8pt] font-poppins p-[3px] w-fit rounded-md">{alertMsg}</div>
-                </div>
-
-                <div className="space-y-4">
-                  <Input
-                    type="text"
-                    title="Email or Reg No"
-                    icon={faEnvelopeCircleCheck}
-                    required
-                    val={email}
-                    click={(e) => setEmail(e.target.value)}
-                  />
-
-                  <Input
-                    type={!show ? "password" : "text"}
-                    title="Password"
-                    icon={faKey}
-                    required
-                    val={password}
-                    click={(e) => setPassword(e.target.value)}
-                  />
-                </div>
-              </motion.div>
-            )}
-
-            {/* Password Visibility Toggle */}
-            <div className="flex justify-end">
-              <button
-                type="button"
-                onClick={() => setShow(!show)}
-                className="inline-flex items-center gap-2 cursor-pointer text-sm font-medium text-slate-600 hover:text-slate-900 transition"
-              >
-                <FontAwesomeIcon icon={show ? faEye : faEyeSlash} />
-                <span>{show ? "Hide Password" : "Show Password"}</span>
-              </button>
-            </div>
-
-            {/* Switch Form Banner */}
-            <div className="bg-slate-50 border border-slate-200/80 rounded-lg p-3.5 text-sm text-slate-600 text-center">
-              {state === "login" ? (
-                <span>
-                  New User?{" "}
-                  <button
-                    type="button"
-                    onClick={() => setState("register")}
-                    disabled={loading}
-                    className="text-sky-700 font-semibold hover:underline ml-1 cursor-pointer"
-                  >
-                   {loading ? "Creating Account..." : "Create Account"}
-                  </button>
-                </span>
-              ) : (
-                <span>
-                  Already have an account?{" "}
-                  <button
-                    type="button"
-                    disabled={loading}
-                    onClick={() => setState("login")}
-                    className="text-sky-700 font-semibold hover:underline ml-1 cursor-pointer"
-                  >
-                   {loading ? "Signing In..." : "Sign In"}
-                  </button>
-                </span>
-              )}
-            </div>
-
-            {/* Submit Action Area */}
-            <div className="pt-2 space-y-3">
-              <button
-                type="submit"
-                className="w-full py-3 px-6 rounded-lg bg-sky-700 hover:bg-sky-800 text-white font-medium text-base shadow-md hover:shadow-lg transition cursor-pointer"
-              >
-                {state === "login" ? "Sign In" : "Create Account"}
-              </button>
-
-              {state !== "login" && (
-                <p className="text-xs text-center text-slate-500 font-medium">
-                  Note: New accounts require administrative approval before activation.
-                </p>
-              )}
-            </div>
-          </form>
+                )}
+              </div>
+            </form>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-);
+  );
 }
-
-
-export {UserForm}

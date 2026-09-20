@@ -2,7 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 
 const router = express.Router()
-import { getStudentList, getStudentListForResultsUpload, GetStudentsInfoForRecording } from "../controllers/Result&AttendanceControllers.js";
+import { getStudentList, getStudentListForResultsUpload, getStudentListForWeeklyCAUploads, GetStudentsInfoForRecording } from "../controllers/Result&AttendanceControllers.js";
 import { setStaffRole } from "../controllers/TeacherController.js";
 import { RegPin } from "../models/Applicant.js";
 //create auth routes
@@ -19,7 +19,7 @@ router.put("/staff/roles/set/:id", setStaffRole)
 
 // ======== IMPORTANT!!! --- Getting uploading list ----- =======
 router.get("/staff/uploading-scores/list", getStudentListForResultsUpload)
-
+router.get("/staff/uploading-weekly-ca/list", getStudentListForWeeklyCAUploads);
 //result pin generation
 router.post("/staff/result-checker/generate", async (req, res) => {
 

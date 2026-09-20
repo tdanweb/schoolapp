@@ -430,7 +430,7 @@ available fonts
    ========================================================================== */
 .traits-section {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
 }
 
@@ -482,27 +482,27 @@ available fonts
    FEE INFORMATION (REFINED)
    ========================================================================== */
 .fee-section {
-  width: 100%;
+  width: fit-content;
 }
 
 .fee-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 0.75rem;
+  gap: 0.25rem;
 }
 
 .fee-grid > div {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 6px;
-  padding: 0.6rem 0.8rem;
+  padding: 0.4rem 0.5rem;
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
 }
 
 .fee-grid span {
-  font-size: 0.65rem;
+  font-size: 0.45rem;
   text-transform: uppercase;
   letter-spacing: 0.03em;
   color: #64748b;
@@ -510,7 +510,7 @@ available fonts
 }
 
 .fee-grid strong {
-  font-size: 0.95rem;
+  font-size: 0.55rem;
   color: #0f172a;
 }
 
@@ -734,5 +734,386 @@ available fonts
 @media print {
   .watermark-container {
     visibility: visible !important;
+  }
+}
+
+
+
+
+
+
+.ward-performance-page {
+  width: 100%;
+  padding: 24px;
+  box-sizing: border-box;
+  background: #f7f8fa;
+  min-height: 100vh;
+}
+
+/* HEADER */
+
+.wp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+.wp-header h1 {
+  margin: 0;
+  font-size: 25px;
+  color: #182230;
+}
+
+.wp-header p {
+  margin: 6px 0 0;
+  color: #687386;
+  font-size: 14px;
+}
+
+.wp-session {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  background: white;
+  border: 1px solid #e6e9ee;
+  padding: 10px 14px;
+  border-radius: 9px;
+  font-size: 13px;
+  color: #566174;
+}
+
+
+/* SUMMARY */
+
+.wp-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.wp-summary-card {
+  background: white;
+  border: 1px solid #e7e9ed;
+  border-radius: 12px;
+  padding: 17px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.wp-summary-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f1f4f8;
+}
+
+.wp-summary-card small {
+  display: block;
+  color: #778195;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.wp-summary-card strong {
+  display: block;
+  color: #1d2735;
+  font-size: 20px;
+}
+
+
+/* SECTION */
+
+.wp-section-title {
+  margin-bottom: 14px;
+}
+
+.wp-section-title h2 {
+  margin: 0;
+  font-size: 19px;
+  color: #202a38;
+}
+
+.wp-section-title p {
+  margin: 5px 0 0;
+  font-size: 13px;
+  color: #778195;
+}
+
+
+/* WARDS */
+
+.ward-selector {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(260px, 1fr)
+  );
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.ward-card {
+  border: 1px solid #e2e6eb;
+  background: white;
+  border-radius: 12px;
+  padding: 15px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.ward-card:hover {
+  border-color: #bbc4d0;
+}
+
+.ward-card.active {
+  border: 2px solid #1d4ed8;
+}
+
+.ward-card-icon {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background: #eef3ff;
+}
+
+.ward-card-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ward-card-info strong {
+  display: block;
+  font-size: 14px;
+  color: #1d2735;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ward-card-info span {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: #566174;
+}
+
+.ward-card-info small {
+  display: block;
+  margin-top: 3px;
+  color: #8a94a5;
+  font-size: 11px;
+}
+
+
+/* PERFORMANCE */
+
+.performance-card {
+  background: white;
+  border: 1px solid #e3e7ec;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.performance-card-header {
+  padding: 22px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  border-bottom: 1px solid #edf0f3;
+}
+
+.performance-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #6c7789;
+  letter-spacing: 0.7px;
+}
+
+.performance-card-header h2 {
+  margin: 7px 0 4px;
+  font-size: 20px;
+  color: #17202d;
+}
+
+.performance-card-header p {
+  margin: 0;
+  font-size: 13px;
+  color: #737e8e;
+}
+
+
+/* SUBJECT */
+
+.subject-filter {
+  min-width: 220px;
+}
+
+.subject-filter label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: #667184;
+}
+
+.subject-filter select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #dce1e7;
+  border-radius: 8px;
+  background: white;
+  outline: none;
+  font-size: 13px;
+}
+
+
+/* STATS */
+
+.performance-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 18px 22px;
+}
+
+.performance-stat {
+  background: #f8f9fb;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.performance-stat span {
+  display: block;
+  font-size: 12px;
+  color: #7a8494;
+}
+
+.performance-stat strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 21px;
+  color: #202a38;
+}
+
+.performance-stat small {
+  color: #7c8797;
+  font-size: 11px;
+}
+
+
+/* CHART */
+
+.chart-wrapper {
+  padding: 10px 22px 25px;
+}
+
+.chart-heading {
+  margin-bottom: 15px;
+}
+
+.chart-heading h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #202a38;
+}
+
+.chart-heading p {
+  margin: 5px 0 0;
+  font-size: 12px;
+  color: #7a8494;
+}
+
+
+/* EMPTY */
+
+.no-performance {
+  height: 270px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: #7a8494;
+}
+
+.no-performance h3 {
+  margin: 12px 0 4px;
+  color: #3c4655;
+  font-size: 15px;
+}
+
+.no-performance p {
+  margin: 0;
+  font-size: 13px;
+}
+
+
+/* LOADING / ERROR */
+
+.wp-loading,
+.wp-error {
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #697586;
+}
+
+.wp-error {
+  color: #c0392b;
+}
+
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+  .ward-performance-page {
+    padding: 15px;
+  }
+
+  .wp-header {
+    display: block;
+  }
+
+  .wp-session {
+    margin-top: 12px;
+    width: fit-content;
+  }
+
+  .wp-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .performance-card-header {
+    display: block;
+  }
+
+  .subject-filter {
+    margin-top: 18px;
+    min-width: 0;
+  }
+
+  .performance-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .chart-wrapper {
+    padding-left: 10px;
+    padding-right: 10px;
   }
 }

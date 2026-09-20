@@ -1,4 +1,4 @@
-import User, { Generator } from "../models/User.js";
+import User, { Generator, Parent } from "../models/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
@@ -185,6 +185,14 @@ export const approveUser = async (req, res) => {
     //only chief admin and admins allowed
     const {regNo, user} = req.body
     try {
+
+        const passAdmin = await User.findOne({regNo});
+
+        if(passAdmin.thisUser !== "admin" && passAdmin.thisUser !== "chief-admin"){
+            return res.status(403).json({
+                msg: "You don't have permissions to approve Users..."
+            })
+        }
         /*
         const checkUser =  await User.findOne({ regNo })
         if(checkUser.thisUser !== "chief-admin"){
@@ -192,14 +200,25 @@ export const approveUser = async (req, res) => {
                 msg: "Access Denied! Only Admin can do this Operation.."
             })
         }
+        
 */
+
+        const userx = await User.findOne({regNo: user}).select("approved");
+
+        let app;
+        if(userx.approved){
+            app = false
+        } else {
+            app = true
+        }
         const updateUser = await User.findOneAndUpdate(
-            {regNo: user}, {approved: true}, {new: true}
-        );
+            {regNo: user}, {approved: app}, {new: true}
+        )
 
         res.status(200).json({
-            msg: "You've successfully approved this User: " + 
-            updateUser.fullname + " - " + user,
+            msg: "You've successfully modified this User: " + 
+            updateUser.fullname + " - " + user + " approval status.",
+            app,
             success: true
         })
     } catch (error) {
@@ -222,11 +241,12 @@ export const unapproveUser = async (req, res) => {
                 msg: "Access Denied! Only Admin can do this Operation.."
             })
         }
-*/
+x
         const updateUser = await User.findOneAndUpdate(
-            {regNo: user}, {approved: false}, {new: true}
+            {regNo: user}, {$set {approved: false} }, {new: true}
         );
-
+          
+        */
         res.status(200).json({
             msg: "You've unapproved this User: " + 
             updateUser.fullname + " - " + user,
@@ -323,6 +343,56 @@ export const profileLoader = async (req, res) => {
         res.status(500).json({
             msg: "Server/Network Error..."
         })
+    }
+}
+
+
+//add parents
+export const addParent = async (req, res) => {
+    try {
+       const {regNo, fullname, contactMail, wards} = req.body;
+       
+       if(!regNo || !fullname || !contactMail || wards.length < 1){
+        return res.status(400).json({
+            msg: "Please Provide all necessary fields and add at least one ward.."
+        })
+       }
+
+       const parent = await Parent.create({
+        ...req.body,
+        regNo, 
+        contactMail,
+        wards 
+       });
+
+const operations = wards.map((ward) => ({
+  updateOne: {
+    filter: {
+      admissionNo: ward.admissionNo,
+      parentAttached: { $exists: false },
+    },
+    update: {
+      $set: {
+        parentAttached: regNo,
+        parentId: parent._id,
+      },
+    },
+  },
+}));
+
+const result = await Student.bulkWrite(operations);
+
+       res.status(201).json({
+        msg: "Parent Registration is successful, Kindly reload Page!",
+        parent
+       })
+
+    } catch (error) {
+        console.log(error)
+        res.status(401).json({
+            msg: "Students Not Found!",
+            success: false
+        });
     }
 }
 

@@ -1,11 +1,12 @@
 import express from "express";
 const router = express.Router();
 
-import Result from "../models/Results.js"
+import Result, { WeeklyScore } from "../models/Results.js"
 import { staffAuth } from "../middlewares/auth.js";
 import { AdditionalRecords } from "../models/Results&Scores.js";
 import { Teacher } from "../models/Staff.js";
 import { GeneralSettings } from "../models/AppSettings.js";
+import { GetCAOfStudent } from "./UserDataFetch.js";
 
 // POST /result/bulk-upload
 router.post("/bulk-upload", staffAuth, async (req, res) => {
@@ -266,4 +267,173 @@ router.post("/upload-records", staffAuth, async (req, res) => {
 
 
 //getting previous records
+
+//bulk upload of weekly scores
+// bulk upload of weekly scores
+router.post("/upload-results/weekly", staffAuth, async (req, res) => {
+
+  try {
+
+    const { assignment, records } = req.body;
+
+
+    // BASIC VALIDATION
+    if (!Array.isArray(records) || !assignment) {
+      return res.status(400).json({
+        msg: "Operation failed, Please select a list of students for results uploads...."
+      });
+    }
+
+
+    if (records.length === 0) {
+      return res.status(400).json({
+        msg: "No student records were provided."
+      });
+    }
+
+
+    // GET SITE SETTINGS
+    const settingsOfApp = await GeneralSettings.findOne({
+      _id: "general-setup"
+    });
+
+
+    if (!settingsOfApp) {
+      return res.status(400).json({
+        msg: "Operation not allowed at the moment..."
+      });
+    }
+
+
+    const settings = settingsOfApp.setUps;
+
+
+    // CONTROLLED BY BACKEND
+    const week = settings.schoolWeek;
+    const session = settings.currentSession;
+    const term = settings.currentTerm;
+
+
+    // FROM ASSIGNMENT
+    const classId = assignment.forClass?.classId;
+    const subject = assignment.subject;
+
+
+    if (!classId || !subject) {
+      return res.status(400).json({
+        msg: "Invalid subject assignment."
+      });
+    }
+
+
+    // TEACHER ID FROM AUTH
+    const teacherId = req.user?.user;
+
+
+    // PREPARE ALL RECORDS
+    const preparedRecords = records.map((record) => {
+
+      const {
+        admissionNo,
+        studentId,
+        score,
+        max,
+        day
+      } = record;
+
+
+      // UNIQUE ID FOR THIS WEEKLY SCORE
+      const recordId = [
+        admissionNo,
+        classId,
+        session,
+        term,
+        subject,
+        week
+      ]
+        .join("-")
+        .replace(/\s+/g, "-");
+
+
+      return {
+        _id: recordId,
+
+        admissionNo,
+
+        studentId,
+
+        session,
+
+        max: Number(max) || 0,
+
+        score: Number(score) || 0,
+
+        subject,
+
+        term,
+
+        teacherId,
+
+        classId,
+
+        week,
+
+        day
+      };
+
+    });
+
+
+    console.log("PREPARED WEEKLY RECORDS:", preparedRecords);
+
+
+    // REPLACE EXISTING RECORD OR CREATE NEW ONE
+    const operations = preparedRecords.map((record) => ({
+
+      updateOne: {
+
+        filter: {
+          _id: record._id
+        },
+
+        update: {
+          $set: record
+        },
+
+        upsert: true
+
+      }
+
+    }));
+
+
+    const result = await WeeklyScore.bulkWrite(operations);
+
+
+    return res.status(200).json({
+
+      success: true,
+
+      msg: "Weekly scores uploaded successfully.",
+
+      uploaded: preparedRecords.length,
+
+      result
+
+    });
+
+
+  } catch (error) {
+
+    console.error("WEEKLY SCORE UPLOAD ERROR:", error);
+
+    return res.status(500).json({
+      msg: "An error occurred while uploading weekly scores."
+    });
+
+  }
+
+});
+
+router.get("/weekly/student", GetCAOfStudent)
 export default router;

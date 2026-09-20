@@ -14,7 +14,7 @@ import HomePagePoster from "../Users/Poster"
 export default function HomePage() {
     const [selc, setSelc] = useState("Home");
     const [user, setUser] = useState(null);
-
+    const api = `${mainApi}/user/auth`
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -37,6 +37,19 @@ export default function HomePage() {
             setUser(user)
         }
      }
+
+     async function confirmUser(){
+
+      try {
+        const res = await axios.get(`${api}?token=${user.token}`);
+        //success
+      } catch (error) {
+        localStorage.removeItem("logged-user")
+        navigate("/sign-in")
+      }
+     }
+
+     confirmUser()
     }, [])
     //check for online, if not true, redirect to signing in...
     return <>
@@ -176,7 +189,6 @@ function HomeView(){
     }
 
     const getPost = `${mainApi}/setting/home-posts`
-
     const [homePosts, setHomePosts] = useState([]);
     const [updates, setUpdates] = useState([]);
 
@@ -377,227 +389,195 @@ function HomeView(){
             </div>
             
             <hr/>
-            {/* Array of post -- Just 3 */}
-        <div className="grid grid-cols-1 gap-7 md:gap-x-10 md:grid-cols-2">
-{
-  homePosts?.map((item) => (
+{/* =========================
+    POSTS SECTION
+========================== */}
+<div className="grid grid-cols-1 gap-6 md:grid-cols-2 md:gap-8">
+  {homePosts?.map((item) => (
     <motion.div
       key={item._id}
-      className="p-2 rounded-md shadow-lg bg-white"
+      className="flex flex-col justify-between rounded-xl border border-slate-100 bg-white p-5 shadow-sm transition-shadow duration-200 hover:shadow-md"
       initial={{ y: 30, opacity: 0.4 }}
       whileInView={{ y: 0, opacity: 1 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
     >
+      <div>
+        {/* Header: Title & Controls */}
+        <div className="flex items-start justify-between gap-3 pb-3">
+          <h4 className="font-lato text-base font-semibold text-slate-800 md:text-lg">
+            {item.title || "---"}
+          </h4>
 
-      {/* =========================
-          HEADER
-      ========================== */}
-      <div className="flex justify-between items-start gap-3">
+          {/* Admin Controls */}
+          {(user?.role === "admin" || user?.role === "chief-admin") && (
+            <div className="flex shrink-0 items-center gap-1 rounded-lg bg-slate-100 p-1">
+              <button
+                onClick={() => setSelectedPost(item)}
+                className="rounded-md p-1.5 text-slate-600 transition-colors hover:bg-white hover:text-slate-900"
+                title="Edit Post"
+              >
+                <FaEdit size={14} />
+              </button>
 
-        <h4 className="p-1 text-[12pt] text-gray-800 font-lato font-semibold">
-          {item.title || "---"}
-        </h4>
-
-        {/* Admin Controls */  
-        user?.role === "admin" || user?.role === "chief-admin" &&
-        <div className="flex flex-row gap-2 items-center p-1 bg-gray-100 rounded-md shrink-0">
-
-          <button
-            onClick={() => setSelectedPost(item)}
-            className="bg-gray-100 p-1 rounded-md cursor-pointer hover:bg-gray-200"
-          >
-            <FaEdit size={15} />
-          </button>
-
-          <button
-            onClick={() => setSelectedPost(item)}
-            className="bg-gray-100 cursor-pointer p-1 rounded-md hover:bg-gray-200"
-          >
-            <FaTrash size={15} color="red" />
-          </button>
-
+              <button
+                onClick={() => setSelectedPost(item)}
+                className="rounded-md p-1.5 text-red-500 transition-colors hover:bg-white hover:text-red-600"
+                title="Delete Post"
+              >
+                <FaTrash size={14} />
+              </button>
+            </div>
+          )}
         </div>
-         }
 
-      </div>
+        <hr className="border-slate-100" />
 
-      <hr />
+        {/* Author & Date */}
+        <div className="mt-3 flex items-center justify-between gap-2 text-xs">
+          <div className="flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 font-lato font-bold text-slate-700">
+            <FaUserCircle size={16} className="text-slate-500" />
+            <div className="flex items-center gap-1.5">
+              <span>{item.posterId?.fullname || "Achiever"}</span>
+              <span
+                className={`text-[10px] font-normal italic ${
+                  item.thisUser === "admin" || item.thisUser === "chief-admin"
+                    ? "text-teal-600 font-semibold"
+                    : "text-slate-500"
+                }`}
+              >
+                • {item.thisUser ? item.thisUser.toUpperCase() : "AUTHOR"}
+              </span>
+            </div>
+          </div>
 
-      {/* =========================
-          AUTHOR + DATE
-      ========================== */}
-      <div className="mt-2 flex flex-row items-center justify-between gap-4 text-[9px]">
-
-        {/* Author */}
-        <div className="py-1 text-[10px] font-lato font-bold flex flex-row items-center gap-2 bg-gray-100 rounded-lg w-fit px-2">
-
-          <FaUserCircle size={16} />
-
-          <div className="grid grid-cols-1 items-center">
-
-            <span>
-              {item.posterId?.fullname || "Achiever"}
-            </span>
-
-            <span
-              className={
-                (item.thisUser === "admin" ||
-                  item.thisUser === "chief-admin")
-                  ? "text-[8px] text-teal-600 italic"
-                  : "text-[8px] text-gray-500 italic"
-              }
-            >
-              {item.thisUser
-                ? item.thisUser.toUpperCase()
-                : "AUTHOR"}
-            </span>
-
+          <div className="text-right text-[11px] font-medium text-slate-400">
+            {item.createdAt &&
+              new Date(item.createdAt).toLocaleString("en-NG", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true,
+              })}
           </div>
         </div>
 
-        {/* Date */}
-        <div className="text-[8px] text-gray-500 text-right">
-          {item.createdAt &&
-            new Date(item.createdAt).toLocaleString("en-NG", {
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-              hour: "numeric",
-              minute: "2-digit",
-              hour12: true
-            })
-          }
-        </div>
+        {/* Images Grid */}
+        {item.images?.length > 0 && (
+          <div
+            className={`mt-4 grid gap-2 ${
+              item.images.length === 1
+                ? "grid-cols-1"
+                : item.images.length === 2
+                ? "grid-cols-2"
+                : "grid-cols-2 md:grid-cols-3"
+            }`}
+          >
+            {item.images.map((image, index) => (
+              <div
+                key={image._id || image.imgId || index}
+                className="overflow-hidden rounded-lg bg-slate-100"
+              >
+                <img
+                  src={image.imgUrl}
+                  alt={`${item.title || "Post"} - ${index + 1}`}
+                  className="aspect-video w-full object-cover transition-transform duration-300 hover:scale-105"
+                  loading="lazy"
+                />
+              </div>
+            ))}
+          </div>
+        )}
 
+        {/* Content Excerpt */}
+        <p className="mt-4 font-poppins text-sm leading-relaxed text-slate-700 whitespace-pre-line md:text-base">
+          {item.excerpt || "No content available."}
+        </p>
       </div>
 
-
-      {/* =========================
-          IMAGES
-      ========================== */}
-
-      {item.images?.length > 0 && (
-        <div
-          className={`mt-3 grid gap-2 ${
-            item.images.length === 1
-              ? "grid-cols-1"
-              : item.images.length === 2
-              ? "grid-cols-2"
-              : "grid-cols-2 md:grid-cols-3"
-          }`}
-        >
-
-          {item.images.map((image, index) => (
-            <div
-              key={image._id || image.imgId || index}
-              className="overflow-hidden rounded-md"
-            >
-              <img
-                src={image.imgUrl}
-                alt={`${item.title || "Post"} - ${index + 1}`}
-                className="w-full h-auto max-h-[400px] object-cover shadow-md"
-                loading="lazy"
-              />
-            </div>
-          ))}
-
-        </div>
-      )}
-
-
-      {/* =========================
-          CONTENT
-      ========================== */}
-
-      <p className="text-base md:text-lg mt-5 font-poppins font-normal text-slate-900 leading-relaxed whitespace-pre-line">
-        {item.excerpt || "No content available."}
-      </p>
-
-
-      {/* =========================
-          READ MORE
-      ========================== */}
-
-      <div className="mt-4 flex justify-end">
-
-
+      {/* Read More */}
+      <div className="mt-5 flex justify-end border-t border-slate-50 pt-3">
         <Link to={`/app/blog/one/${item._id}`}>
-        <button
-          onClick={() => setSelectedPost(item)}
-          className="text-sm font-poppins font-semibold text-blue-700 hover:underline"
-        >
-          Read more
-        </button>  
+          <button
+            onClick={() => setSelectedPost(item)}
+            className="font-poppins text-sm font-semibold text-blue-600 transition-colors hover:text-blue-800 hover:underline"
+          >
+            Read more &rarr;
+          </button>
         </Link>
-
       </div>
-
     </motion.div>
-  ))
-}
-        </div>
-        </div>
+  ))}
+</div>
 
-        <div className="p-4 rounded-sm shadow-md text-2xl text-orange-700 font-bold">
-            <p>Announcements For Everyone</p>
-            {/*Arrays of ANnouncements --- last 5*/}
-{updates && updates.length > 0 && (
-  <div className="space-y-3">
-    {updates.map((update) => (
-      <div
-        key={update._id}
-        className="rounded-2xl border border-gray-200 bg-white p-5 transition-shadow hover:shadow-sm"
-      >
-        <div className="flex gap-4">
-          {/* Update indicator */}
-          <div className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-blue-600" />
+{/* =========================
+    ANNOUNCEMENTS SECTION
+========================== */}
+<div className="mt-10 rounded-xl border border-orange-100 bg-orange-50/30 p-5 shadow-sm">
+  <h2 className="mb-4 font-poppins text-xl font-bold text-orange-800 md:text-2xl">
+    Announcements From School..
+  </h2>
 
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
-              <h3 className="font-semibold text-gray-900">
-                {update.title}
-              </h3>
+  {updates && updates.length > 0 && (
+    <div className="space-y-3">
+      {updates.map((update) => (
+        <div
+          key={update._id}
+          className="rounded-xl border border-slate-200/80 bg-white p-5 shadow-sm transition-all hover:border-slate-300 hover:shadow"
+        >
+          <div className="flex gap-4">
+            {/* Update indicator */}
+            <div className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full bg-blue-600" />
 
-              <span className="text-xs text-gray-400">
-                {new Date(update.createdAt).toLocaleDateString("en-NG", {
-                  day: "numeric",
-                  month: "short",
-                  year: "numeric",
-                })}
-              </span>
-            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-1">
+                <h3 className="font-poppins font-semibold text-slate-900">
+                  {update.title}
+                </h3>
 
-            <p className="mt-2 text-sm leading-6 text-gray-600">
-              {update.body}
-            </p>
+                <span className="text-xs font-medium text-slate-400">
+                  {new Date(update.createdAt).toLocaleDateString("en-NG", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </span>
+              </div>
 
-            <div className="mt-4 flex flex-wrap items-center gap-2 text-xs">
-              <span className="font-medium text-gray-700">
-                {update.poster?.displayName}
-              </span>
+              <p className="mt-2 font-poppins text-sm leading-6 text-slate-600">
+                {update.body}
+              </p>
 
-              <span className="text-gray-300">•</span>
+              <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                <span className="font-medium text-slate-800">
+                  {update.poster?.displayName}
+                </span>
 
-              <span className="capitalize text-gray-400">
-                {update.poster?.staffType}
-              </span>
+                <span className="text-slate-300">•</span>
 
-              <span className="text-gray-300">•</span>
+                <span className="capitalize text-slate-500">
+                  {update.poster?.staffType}
+                </span>
 
-              <span className="text-gray-400">
-                {new Date(update.createdAt).toLocaleTimeString("en-NG", {
-                  hour: "numeric",
-                  minute: "2-digit",
-                })}
-              </span>
+                <span className="text-slate-300">•</span>
+
+                <span className="text-slate-400">
+                  {new Date(update.createdAt).toLocaleTimeString("en-NG", {
+                    hour: "numeric",
+                    minute: "2-digit",
+                  })}
+                </span>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    ))}
-  </div>
-)}
+      ))}
+    </div>
+  )}
+</div>
+
         </div>
 
 

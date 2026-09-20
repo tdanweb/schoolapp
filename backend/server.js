@@ -40,7 +40,10 @@ import studentRoutes from './routes/StudentRoute.js';
 import appRoutes from './routes/ApplicantRoute.js';
 import dutiesRoute from './routes/StaffDutiesRoute.js';
 import resultsRoute from './controllers/ResultControls.js';
+import docRouter from './controllers/StaffDocControl.js';
 
+
+app.use("/api", docRouter)
 app.use('/api', userRoutes)
 app.use("/api", dutiesRoute)
 app.use("/api", appRoutes)

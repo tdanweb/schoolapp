@@ -3,7 +3,8 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { ItemHolder } from "./GeneralSetting";
-import { FormSection, Input, Select } from "../StudentResgistration";
+//import { FormSection, Input, Select } from "../StudentResgistration";
+import { Input, Select, FormSection } from "./StudentRegistration";
 import { FaUserCircle,  FaGraduationCap,  FaFileAlt,  FaPlusCircle,  FaTrash,  FaSave,  FaTimes} from "react-icons/fa";
 import { mainApi } from "../../api";
 import StaffManagementForm from "./AssignStaff";
@@ -176,7 +177,6 @@ export default function EnrolStaff() {
   const submitForm = async (e) => {
     e.preventDefault();
     setLoading(true);
-    console.log(staffInfo)
 
     const formData = new FormData();
 
@@ -191,7 +191,6 @@ export default function EnrolStaff() {
 */
 
       const res = await axios.post(`${mainApi}/user/staff/enroll`, staffInfo)
-      console.log(res.data);
       setAlertmsg(res.data?.msg || "Staff enrolled successfully!");
       setStaffInfo(initialStaffProfile);
     } catch (error) {

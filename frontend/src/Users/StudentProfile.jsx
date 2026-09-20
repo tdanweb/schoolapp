@@ -126,6 +126,7 @@ const ProfileView = () => {
   // =========================
 
   async function fetchProfile(){
+    setLoading(true)
         try {
             const params = new URLSearchParams({
                 regNo: searchValue.toUpperCase(),
@@ -133,17 +134,11 @@ const ProfileView = () => {
             });
 
             const res = await axios.get(`${profileAPI}?${params.toString()}`);
-            alert(res.data.msg); 
+           
             setResMsg(res.data.msg)
             const stu = res.data.student
-            stu.mainClass =  res.data.stu_class.mainClass
-            console.log(stu)
-    setTimeout(() => {
-      //fetchProfile()
-      setStudent(stu);
-      setLoading(false);
-    }, 1000);
-
+            setStudent(stu)
+            stu.mainClass =  res.data.stu_class.mainClass;
         } catch (error) {
             if(error.response){
                 alert(error.response.data.msg); 
@@ -151,6 +146,8 @@ const ProfileView = () => {
             } else{
                 alert("Network or Server error, Try Again!")
             }
+        } finally {
+          setLoading(false)
         }
 
   }
@@ -161,14 +158,6 @@ const ProfileView = () => {
 
     if (!searchValue.trim()) return;
     return fetchProfile()
-
-    setLoading(true);
-    // Mock API delay
-    setTimeout(() => {
-      //fetchProfile()
-      setStudent(mockStudent);
-      setLoading(false);
-    }, 1000);
   };
 
   // =========================
@@ -189,8 +178,11 @@ const ProfileView = () => {
   };
 
   const [message, setMessage] = useState("");
+  const [passLoad, setPassLoad] = useState(false)
 
   const uploadPassport = async () => {
+
+    setPassLoad(true)
     try {
       //setLoading(true); setMessage("");  setProgress(0);
 
@@ -221,6 +213,7 @@ const ProfileView = () => {
           "Upload failed."
       ); 
     } finally {
+      setPassLoad(false)
      setLoading(false);
     }
   }
@@ -254,7 +247,7 @@ const ProfileView = () => {
               <div className="relative bg-white p-5 max-w-full max-h-[95vh] overflow-auto">
                 <StudentIDCard  
                 QRComponent={<StudentQRCode student={student}/> } 
-                student={student} schoolCrest={"/CREST.jpg"}/>
+                student={student} schoolCrest={"/crest.png"}/>
     <button
       type="button"
       onClick={() => setLay(false)}
@@ -759,14 +752,20 @@ const ProfileView = () => {
               {/* UPLOAD BUTTON */}
               <button
                 onClick={uploadPassport}
-                disabled={!selectedFile}
-                className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
+                disabled={passLoad}
+                className={`mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 ${passLoad && 'opacity-1/2' }`}
               >
                 <FiUpload />
-                Upload Passport
+                {passLoad && "Uploading Passport File..."}
+                {!passLoad && "Upload Passport"}
               </button>
 
-              {message && <small className="text-sm my-4 p-1">{message}</small>}
+
+{message && (
+    <small className="block w-fit mx-auto my-4 px-3 py-1.5 rounded-lg bg-slate-100 text-slate-600 border border-slate-200 text-xs font-medium">
+        {message}
+    </small>
+)}
             </motion.div>
           </motion.div>
         )}

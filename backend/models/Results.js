@@ -81,6 +81,9 @@ export default Result;
 
 
 const weeklyAssessemmentSchema = new mongoose.Schema({
+  _id: {
+    type: String, required: true, unique: true, trim: true 
+  },
   admissionNo: {
     type: String, required: true
   },
@@ -88,8 +91,27 @@ const weeklyAssessemmentSchema = new mongoose.Schema({
     type: String, required: true
   },
   studentId: {
- 
-  }
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Student",
+    required: true  
+  },
+  max: {
+    type: Number, default: 0
+  },
+  score: {
+    type: Number, default: 0
+  },
+  subject: {type: String, required: true},
+  term: { type: String, required: true},
+  teacherId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Teacher"
+  },
+  classId: { type: String, required: true},
+  week: {type: Number, required: true},
+  day: {type: String, required: true} ///short form of days
 }, {
+  timestamps: true
+});
 
-})
+export const WeeklyScore = new mongoose.model("Weekly", weeklyAssessemmentSchema);

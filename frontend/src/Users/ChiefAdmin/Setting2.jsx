@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from "react"
+import axios from "axios"
 import { mainApi } from "../../api"
 import { ItemHolder } from "./GeneralSetting"
 import { useFormState } from "react-dom"
-import axios from "axios"
-import { FormSection, Input, Select } from "../StudentResgistration"
+import { FormSection, Input, Select } from "../StudentRegistration"
+
 import { motion } from "framer-motion"
 import { FaBook, FaChild, FaPlusCircle, FaTimesCircle, FaUpload } from "react-icons/fa"
 import { schoolMainClasses } from "../../dataBase"

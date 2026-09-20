@@ -18,10 +18,8 @@ import { ClassDetail, GeneralSettings, TermSettings } from "../models/AppSetting
 */
 
 export const addStudent = async (req, res) => {
+  
   try {
-
-
-
     let admNo; let regNum
     const {admissionNo, regNo} = req.body;
 
@@ -155,7 +153,7 @@ export const addStudent = async (req, res) => {
       success: true,
       msg: "Student registered successfully",
       student,
-      logins: "Email is: " + studentLogins.mail + " and REG. NUM: " + regNum + 
+      logins: "Your Email is: " + studentLogins.mail + " and REG. NUM: " + regNum + 
       ". Your Portal access ID is your Registration No, and initial password is also your Registration No. You can change your password later"
       //initial password is reg NO in capital letters
     });

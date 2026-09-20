@@ -18,7 +18,7 @@ const StudentIDCard = ({
     regNo: "",
     admissionNo: "",
     dob: "",
-    clubHouse: "",
+    club_house: "",
     realClassId: "",
     session: "2026/2027",
     parentContact: "",
@@ -30,7 +30,7 @@ const StudentIDCard = ({
 presented whenever requested. If found, please return it to the school authority.`,
 
   schoolAddress = "14, Adeolu Crescent, Maitama Abuja Nigeria.",
-  principalSignature = "/p-signature.jpg",
+  principalSignature = "/signature.jpg",
 
   QRComponent,
 }) => {
@@ -164,7 +164,7 @@ presented whenever requested. If found, please return it to the school authority
        * standalone element now.
        */
       const canvas = await html2canvas(clone, {
-        scale: 4,
+        scale: 2,
         useCORS: true,
         allowTaint: false,
         backgroundColor: null,
@@ -254,7 +254,7 @@ const savePDF = async () => {
      * 70mm wide ID card
      * Maintains standard 85.6 : 54 ratio
      */
-    const cardWidth = 70;
+    const cardWidth = 60;
     const cardHeight = cardWidth * (54 / 85.6);
 
     /*
@@ -658,7 +658,7 @@ const Info = ({ label, value }) => (
 
                   <Info
                     label="Club / House"
-                    value={student?.clubHouse}
+                    value={student?.club_house}
                   />
 
                   <Info

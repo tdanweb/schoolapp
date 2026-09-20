@@ -466,4 +466,7 @@ routes.get("/blog-posts/:id",
 
 //get details
 routes.get("/user/fee-info", getFeeInfo);
+
+
+//va
 export default routes;

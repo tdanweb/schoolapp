@@ -3,7 +3,7 @@ import { AdditionalRecords, Attendance, ResultPin } from "../models/Results&Scor
 import { Teacher } from "../models/Staff.js";
 import Student from "../models/Student.js";
 import { GeneralSettings, TermSettings } from "../models/AppSettings.js";
-import Result from "../models/Results.js";
+import Result, { WeeklyScore } from "../models/Results.js";
 
 export async function recordAttendanceInBulk(req, res){
 
@@ -43,7 +43,7 @@ export async function GetStudentsInfoForRecording(req, res){
 
     try {
         const {id} = req.params;
-        const staff = await Teacher.findOne({regNo: id}).select("assignedSubjects specialRoles staffId fullname displayName");
+        const staff = await Teacher.findOne({regNo: id, activeStaff: true}).select("assignedSubjects specialRoles staffId fullname displayName");
 
 /*
         const students = await Student.find({ status: "active", realClassId: "class-id"})
@@ -131,6 +131,37 @@ export const getStudentListForResultsUpload = async (req, res) => {
     }
 }
 
+
+export const getStudentListForWeeklyCAUploads = async (req, res) => {
+
+    try {
+        const {classId, subject} = req.query;
+        const currentSetting = await GeneralSettings.findOne({_id: "general-setup"})
+        const settings = currentSetting.setUps;
+
+        //session, term, schoolweek, 
+
+        const prevWeekRecords = await WeeklyScore.find({
+            classId, week: settings.schoolWeek, subject, 
+            term: settings.currentTerm,
+            session: settings.currentSession
+        });  //map to populatte with student details...
+        
+        const studentList = await Student.find({
+            realClassId: classId, status: "active"
+        }).select("admissionNo regNo personalInfo.surname personalInfo.firstName personalInfo.otherName passportUrl");
+
+        res.status(201).json({
+            success: true,
+            studentList,
+            settings,
+            previousScores: prevWeekRecords
+        })
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({msg: "Network Error..."})
+    }
+}
 // [==================]
 // UPLOADING RESULTS, MAIN AND ADDITIONALS
 // [==================]

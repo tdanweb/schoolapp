@@ -30,7 +30,7 @@ export function AllSideBarLinks({
   user,
   permissions = {},
   click,
-  userId = "SCH0001",
+  userId = "",
 }) {
   const location = useLocation();
   /*
@@ -83,6 +83,7 @@ export function AllSideBarLinks({
         <SideLink name="Academic Calendar" abb="calendar" icon={<FaCalendarAlt size={18} />} url="/app/user/calendar" />
         <SideLink name="My Performance" abb="performance" icon={<FaTasks size={18} />} url="/app/user/performance" />
         <SideLink name="Attendance" abb="attendance" icon={<FaHistory size={18} />} url="/app/user/attendance" />
+        <SideLink name="Disciplinary Cases" abb="disciplinary" icon={<FaHistory size={18} />} url="/app/user/disciplinary" />
       </div>
     );
   }
@@ -138,13 +139,12 @@ export function AllSideBarLinks({
       {/* General */}
       <SideLink name="Home" abb="home" icon={<FaHome size={18} />} url="/app/user/home" />
       <SideLink name="Academic Calendar" abb="calendar" icon={<FaCalendarAlt size={18} />} url="/app/user/calendar" />
-
       {/* Staff Academic Actions */}
       {(isAdmin || permissions.isClassTeacher) && (
         <SideLink name="Class List" abb="list" icon={<FaUsers size={18} />} url="/app/user/stu-list" />
       )}
       {(isAdmin || permissions.isSubjectTeacher) && (
-        <SideLink name="My Subjects" abb="subjects" icon={<FaBook size={18} />} url="/app/user/my-subjects" />
+        <SideLink name="Weekly C.A" abb="weekly-ca" icon={<FaBook size={18} />} url="/app/user/weekly-ca" />
       )}
       {(isAdmin || permissions.canUploadAssignedResults || permissions.isSubjectTeacher) && (
         <SideLink name="Upload Results" abb="results" icon={<FaClipboardCheck size={18} />} url="/app/user/results" />

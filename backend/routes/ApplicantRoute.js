@@ -2,6 +2,8 @@ import Applicant, {RegPin} from "../models/Applicant.js";
 import express from "express";
 import User from "../models/User.js";
 import { AdmissionSetting, GeneralSettings } from "../models/AppSettings.js";
+import { staffAuth } from "../middlewares/auth.js";
+import { generateId } from "../controllers/UserControls.js";
 
 const router = express.Router();
 
@@ -330,7 +332,6 @@ router.get("/applicants/session/:sessionId", async (req, res) => {
     }
 });
 
-
 //bulkwrite applicant exam date
 router.put("/applicants/assign", async(req, res) => {
 
@@ -367,6 +368,160 @@ router.put("/applicants/assign", async(req, res) => {
     console.log(error);
     res.status(500).json({
       msg: "Server Error!"
+    })
+  }
+})
+
+
+//giving admission
+router.put("/applicants/admission", staffAuth, async (req, res) => {
+  try {
+    const applicants = req.body;
+
+    if (!Array.isArray(applicants) || applicants.length === 0) {
+      return res.status(400).json({
+        success: false,
+        msg: "No applicants supplied.",
+      });
+    }
+
+    const operations = [];
+
+    for (const incoming of applicants) {
+
+      const existing = await Applicant.findById(incoming._id);
+
+      if (!existing) {
+        continue;
+      }
+
+
+      // ==========================================
+      // ALREADY ADMITTED
+      // ==========================================
+      if (
+        existing.status === "admitted" &&
+        existing.admissionNo
+      ) {
+
+        // Still admitted → nothing to do
+        if (incoming.status === "admitted") {
+          continue;
+        }
+
+
+        // Admission withdrawn
+        if (incoming.status !== "admitted") {
+
+          operations.push({
+            updateOne: {
+              filter: {
+                _id: existing._id,
+              },
+
+              update: {
+                $set: {
+                  status: incoming.admissionStatus,
+                  admissionDate: null,
+                  admissionNo: "", //here is the main task
+                },
+              },
+            },
+          });
+        }
+
+        continue;
+      }
+
+
+      // ==========================================
+      // NEW ADMISSION
+      // ==========================================
+      if (
+        existing.status !== "admitted" &&
+        incoming.admissionStatus === "admitted"
+      ) {
+
+        // Generate admission number here
+        const admissionNo = `AIA/${await generateId("admission-no")}`;
+
+        operations.push({
+          updateOne: {
+            filter: {
+              _id: existing._id,
+            },
+
+            update: {
+              $set: {
+                status: "admitted",
+                admissionDate:
+                  incoming.admissionDate || new Date(),
+                admissionNo,
+              },
+            },
+          },
+        });
+
+        continue;
+      }
+
+
+      // ==========================================
+      // NOTHING TO CHANGE
+      // ==========================================
+      continue;
+    }
+
+
+    // ==========================================
+    // BULK UPDATE
+    // ==========================================
+    if (operations.length > 0) {
+      const result = await Applicant.bulkWrite(operations);
+
+      return res.status(200).json({
+        success: true,
+        msg: "Admission records updated successfully.",
+        modified: result.modifiedCount,
+      });
+    }
+
+
+    return res.status(200).json({
+      success: true,
+      msg: "No admission changes were required.",
+      modified: 0,
+    });
+
+  } catch (error) {
+
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      msg: "Unable to process admission.",
+    });
+  }
+});
+
+router.get("/applicant/letter/:id", async(req, res) => {
+  const {id} = req.params;
+  try {
+    const student = await Applicant.findOne({_id: id, status: "admitted"});
+
+    if(!student){
+      res.status(404).json({
+        msg: "Unable to find this Applicant Information.. Ensure your admission is valid!"
+      })
+    }
+
+    res.status(201).json({
+      student, msg: "Congratulations on your Admission..."
+    })
+  } catch (error) {
+    console.log(error)
+    res.status(400).json({
+      msg: "Network Error..."
     })
   }
 })

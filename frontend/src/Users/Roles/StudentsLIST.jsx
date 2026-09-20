@@ -11,10 +11,12 @@ import {
     FaCoins, 
     FaCalendarDay,
     FaExclamationTriangle,
-    FaCheckDouble
+    FaCheckDouble,
+    FaPaperclip
 } from "react-icons/fa";
 import { naira } from "../../staticFiles";
 import UploadAdditionalRecords from "./AddRecUploads";
+import SaveResultPDF from "../../components/ResultsSavePDF";
 
 export default function StudentLIST() {
     const [classId, setClassId] = useState("");
@@ -55,7 +57,7 @@ export default function StudentLIST() {
         try {
             const api3 = `${mainApi}/students/work/${classId}`;
             const res = await axios.get(api3);
-            // console.log(res.data);
+            console.log(res.data);
 
             setCurrentList(res.data.students || []);
             setAttdList(res.data.attendanceRecords || []);
@@ -139,6 +141,12 @@ export default function StudentLIST() {
                     >
                         <FaCheckDouble /> Student Scores
                     </button>
+                    <button 
+                        onClick={() => setView("sheet")}
+                        className={`flex items-center gap-2 pb-3 px-2 text-sm font-semibold border-b-2 transition-all cursor-pointer ${view === "sheet" ? "border-indigo-600 text-indigo-600" : "border-transparent text-slate-500 hover:text-slate-800"}`}
+                    >
+                        <FaPaperclip /> Template
+                    </button>
                 </div>
             )}
 
@@ -151,6 +159,10 @@ export default function StudentLIST() {
                 //view === "add-recs" && <UploadAdditionalRecords key="add-recs" 
                 view === "add-recs" && <UploadAdditionalRecords key="add-recs" list={currentList} classId={classId} regNo={staff?.regNo ||  ""} prevList={prevAddRecList}/>
                 }
+                {
+                    view==="sheet" && <StudentRecordingSheet key="sheet" studentList={currentList}/>
+                }
+                {view === "sheet" && <div className="mt-10 flex justify-center"><SaveResultPDF btnText="Save List Template as PDF" fileName={`${classId} Student List.pdf`} targetId={"student-recording-sheet"}/></div>}
             </AnimatePresence>
         </div>
     );
@@ -392,4 +404,348 @@ function TakeAttendance({ list, classId, prevList }) {
             </div>
         </motion.div>
     );
+}
+
+
+function StudentRecordingSheet({ studentList = [] }) {
+  const students = [...studentList].sort((a, b) => {
+    const nameA = `${a?.personalInfo?.surname || ""} ${
+      a?.personalInfo?.firstName || ""
+    } ${a?.personalInfo?.otherName || ""}`.trim();
+
+    const nameB = `${b?.personalInfo?.surname || ""} ${
+      b?.personalInfo?.firstName || ""
+    } ${b?.personalInfo?.otherName || ""}`.trim();
+
+    return nameA.localeCompare(nameB);
+  });
+
+  const getFullName = (student) => {
+    return [
+      student?.personalInfo?.surname,
+      student?.personalInfo?.firstName,
+      student?.personalInfo?.otherName,
+    ]
+      .filter(Boolean)
+      .join(" ");
+  };
+
+  const className =
+    students[0]?.realClassNow?.mainClass ||
+    students[0]?.realClassNow?.classId ||
+    students[0]?.realClassId ||
+    "";
+
+  const arm = students[0]?.realClassNow?.arm || "";
+
+  return (
+    <>
+      <style>
+        {`
+          #student-recording-sheet {
+            width: 210mm;
+            min-height: 297mm;
+            background: #fff;
+            color: #111;
+            font-family: Arial, Helvetica, sans-serif;
+            box-sizing: border-box;
+          }
+
+          #student-recording-sheet * {
+            box-sizing: border-box;
+          }
+
+          .recording-page {
+            width: 100%;
+            min-height: 297mm;
+            padding: 12mm;
+            background: white;
+          }
+
+          .recording-header {
+            text-align: center;
+            border-bottom: 2px solid #222;
+            padding-bottom: 9px;
+          }
+
+          .recording-header-top {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+          }
+
+          .recording-crest {
+            width: 65px;
+            height: 65px;
+            object-fit: contain;
+          }
+
+          .school-name {
+            font-size: 20px;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: 0.5px;
+          }
+
+          .school-address {
+            font-size: 11px;
+            margin-top: 4px;
+          }
+
+          .recording-title {
+            margin-top: 12px;
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+          }
+
+          .details-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 15px;
+            margin-top: 13px;
+            margin-bottom: 13px;
+            font-size: 11px;
+            font-weight: 600;
+          }
+
+          .blank-field {
+            display: inline-block;
+            min-width: 90px;
+            border-bottom: 1px solid #222;
+            height: 17px;
+            vertical-align: bottom;
+          }
+
+          .blank-field.subject {
+            min-width: 125px;
+          }
+
+          .list-title {
+            font-size: 13px;
+            font-weight: 800;
+            margin: 8px 0 6px;
+            text-align: left;
+          }
+
+          .recording-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+          }
+
+          .recording-table th,
+          .recording-table td {
+            border: 1px solid #222;
+            padding: 5px 4px;
+          }
+
+          .recording-table th {
+            background: #eeeeee;
+            font-size: 9px;
+            font-weight: 800;
+            text-align: center;
+          }
+
+          .recording-table td {
+            height: 29px;
+            font-size: 9.5px;
+          }
+
+          .serial {
+            width: 7%;
+            text-align: center;
+          }
+
+          .fullname {
+            width: 27%;
+          }
+
+          .regno {
+            width: 11%;
+            text-align: center;
+          }
+
+          .admission {
+            width: 12%;
+            text-align: center;
+          }
+
+          .score {
+            width: 7%;
+            text-align: center;
+          }
+
+          .grade {
+            width: 7%;
+            text-align: center;
+          }
+
+          .remark {
+            width: 15%;
+          }
+
+          .recording-footer {
+            margin-top: 12px;
+            font-size: 9px;
+            display: flex;
+            justify-content: space-between;
+          }
+
+          @media print {
+            @page {
+              size: A4;
+              margin: 0;
+            }
+
+            body {
+              margin: 0;
+              padding: 0;
+              background: white;
+            }
+
+            #student-recording-sheet {
+              width: 210mm;
+              min-height: 297mm;
+            }
+          }
+        `}
+      </style>
+
+      <div id="student-recording-sheet">
+        <div className="recording-page">
+
+          {/* SCHOOL HEADER */}
+          <div className="recording-header">
+            <div className="recording-header-top">
+              <img
+                src="/crest.png"
+                alt="School Crest"
+                className="recording-crest"
+              />
+
+              <div>
+                <h1 className="school-name">
+                  ACHIEVERS INTERNATIONAL SCHOOLS
+                </h1>
+
+                <div className="school-address">
+                  GRA Avenue, Kado, Abuja, Nigeria
+                </div>
+              </div>
+            </div>
+
+            <div className="recording-title">
+              STUDENT RECORDING SHEET
+            </div>
+          </div>
+
+          {/* CLASS / DATE / SUBJECT */}
+          <div className="details-row">
+            <div>
+              Class:{" "}
+              <span className="blank-field">
+                {className}
+              </span>
+            </div>
+
+            <div>
+              Arm:{" "}
+              <span className="blank-field">
+                {arm}
+              </span>
+            </div>
+
+            <div>
+              Date:{" "}
+              <span className="blank-field"></span>
+            </div>
+
+            <div>
+              Subject:{" "}
+              <span className="blank-field subject"></span>
+            </div>
+          </div>
+
+          {/* LIST */}
+          <div className="list-title">
+            LIST OF STUDENTS
+          </div>
+
+          <table className="recording-table">
+            <thead>
+              <tr>
+                <th className="serial">S/N</th>
+                <th className="fullname">FULL NAME</th>
+                <th className="regno">REG. NO.</th>
+                <th className="admission">ADMISSION NO.</th>
+                <th className="score">CA1</th>
+                <th className="score">CA2</th>
+                <th className="score">CA TOTAL</th>
+                <th className="score">EXAM TOTAL</th>
+                <th className="grade">GRADE</th>
+                <th className="remark">REMARK</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {students.length > 0 ? (
+                students.map((student, index) => (
+                  <tr key={student?._id || index}>
+                    <td className="serial">
+                      {index + 1}
+                    </td>
+
+                    <td className="fullname">
+                      {getFullName(student)}
+                    </td>
+
+                    <td className="regno">
+                      {student?.regNo || ""}
+                    </td>
+
+                    <td className="admission">
+                      {student?.admissionNo || ""}
+                    </td>
+
+                    {/* Blank recording fields */}
+                    <td className="score"></td>
+                    <td className="score"></td>
+                    <td className="score"></td>
+                    <td className="score"></td>
+                    <td className="grade"></td>
+                    <td className="remark"></td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan="10"
+                    style={{
+                      textAlign: "center",
+                      height: "50px",
+                    }}
+                  >
+                    No students available
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+
+          <div className="recording-footer">
+            <span>
+              Teacher's Signature: ______________________
+            </span>
+
+            <span>
+              Date: __________________
+            </span>
+          </div>
+
+        </div>
+      </div>
+    </>
+  );
 }

@@ -133,7 +133,7 @@ export default function StaffManagementForm({ initialStaff = {} }) {
   };
 
   useEffect(() => {
-   // console.log(JSON.parse(localStorage.getItem("logged-user")))
+   
     getStaffToAssign();
   }, []);
 
@@ -319,7 +319,6 @@ export default function StaffManagementForm({ initialStaff = {} }) {
       return;
     }
 
-    console.log(elm)
     setSelection(elm);
 
     setStaff((prev) => ({

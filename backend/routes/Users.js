@@ -1,9 +1,9 @@
 import express from 'express';
 import User, { Parent } from '../models/User.js';
-import { addUser, approveUser, getUsers, logInApplicant, logInUser, profileLoader, protect, protectedRoute, testAuth } from '../controllers/UserControls.js';
+import { addParent, addUser, approveUser, getUsers, logInApplicant, logInUser, profileLoader, protect, protectedRoute, testAuth } from '../controllers/UserControls.js';
 import { getStaff, getStaffForClass, getStaffToAssign, loadStaffUser, registerStaff } from '../controllers/TeacherController.js';
-import authMiddleware from '../middlewares/auth.js';
-import { TermSettings } from '../models/AppSettings.js';
+import authMiddleware, { adminPermissionAuths, staffAuth, userAuth } from '../middlewares/auth.js';
+import { GeneralSettings, TermSettings } from '../models/AppSettings.js';
 import { addNewClass } from '../controllers/settings.js';
 import {Teacher} from '../models/Staff.js';
 import upload2 from '../cloudinaryMedia.js';
@@ -126,7 +126,7 @@ router.post(
   }
 );
 
-
+router.post("/user/parent/add", addParent)
 
 //dashboard -- main point for getting basic details
 router.get("/user/dashboard-home/:id", 
@@ -374,132 +374,185 @@ router.get("/user/dashboard-main/:id", async (req, res) => {
     // =========================================================
     // 4. PARENT DASHBOARD
     // =========================================================
-    if (userType === "parent") {
-      const parent = await Parent.findOne({
+if (userType === "parent") {
+  const parent = await Parent.findOne({
+    regNo: checkUser.regNo,
+  }).lean();
+
+  // ---------------------------------------------------------
+  // Parent profile has not been completed
+  // ---------------------------------------------------------
+  if (!parent || parent.status !== "active") {
+
+    const students = await Student.find({
+      status: "active",
+    })
+      .select(`
+        _id
+        regNo
+        admissionNo
+        personalInfo.surname
+        personalInfo.firstName
+        personalInfo.otherName
+        realClassId
+      `)
+      .lean();
+
+    return res.status(200).json({
+      parent: null,
+      success: false,
+      isParent: true,
+      students,
+
+      parentInfo: {
         regNo: checkUser.regNo,
-      })
-        .select(`
-          _id
-          regNo
-          fullname
-          email
-          phone
-          wards
-          status
-        `)
-        .lean();
+        fullname: checkUser.fullname,
+        contactMail: checkUser.email,
+        contactPhone: checkUser.phone,
+        occupation: "",
+        address: "",
+      },
 
-      if (!parent || parent.status !== "active") {
-        return res.status(404).json({
-          success: false,
-          msg: "Parent's Profile is unapproved or not found!",
-        });
-      }
+      msg: "Parent Profile not found, Kindly complete your Registration below!",
+    });
+  }
 
-      /*
-       * Parent wards are expected to contain student references/details.
-       *
-       * Example:
-       * wards: [
-       *   {
-       *     studentId,
-       *     fullname,
-       *     admissionNo,
-       *     regNo
-       *   }
-       * ]
-       */
+  // ---------------------------------------------------------
+  // Get the parent's wards
+  // ---------------------------------------------------------
+  const wards = parent.wards || [];
 
-      const wards = parent.wards || [];
+  const wardRegNos = wards
+    .map((ward) => ward.regNo)
+    .filter(Boolean);
 
-      // ---------------------------------------------------------
-      // Get actual student information for the parent's wards
-      // ---------------------------------------------------------
-      const wardRegNos = wards
-        .map((ward) => ward.regNo)
-        .filter(Boolean);
+  // ---------------------------------------------------------
+  // Get actual active student records
+  // ---------------------------------------------------------
+  const students = await Student.find({
+    regNo: { $in: wardRegNos },
+    status: "active",
+  })
+    .select(`
+      _id
+      regNo
+      admissionNo
+      personalInfo
+      passportUrl
+      realClassNow
+      realClass
+      realClassArm
+      realDepartment
+      realClassId
+      currentFee
+      status
+    `)
+    .lean();
 
-      const students = await Student.find({
-        regNo: { $in: wardRegNos },
-        status: "active",
-      })
-        .select(`
-          _id
-          regNo
-          admissionNo
-          personalInfo
-          passportUrl
-          realClassNow
-          realClass
-          realClassArm
-          realDepartment
-          status
-        `)
-        .lean();
+  // ---------------------------------------------------------
+  // Build student information for parent dashboard
+  // ---------------------------------------------------------
+  const studentList = students.map((student) => ({
+    _id: student._id,
 
-      // ---------------------------------------------------------
-      // Build student dashboard information
-      // ---------------------------------------------------------
-      const studentList = students.map((student) => ({
-        _id: student._id,
+    regNo: student.regNo,
+    admissionNo: student.admissionNo,
 
-        regNo: student.regNo,
-        admissionNo: student.admissionNo,
+    personalInfo: {
+      surname: student.personalInfo?.surname || "",
+      firstName: student.personalInfo?.firstName || "",
+      otherName: student.personalInfo?.otherName || "",
+      gender: student.personalInfo?.gender || "",
+      dob: student.personalInfo?.dob || null,
+    },
 
-        fullname: [
-          student.personalInfo?.firstName,
-          student.personalInfo?.otherName,
-          student.personalInfo?.surname,
-        ]
-          .filter(Boolean)
-          .join(" "),
+    fullname: [
+      student.personalInfo?.firstName,
+      student.personalInfo?.otherName,
+      student.personalInfo?.surname,
+    ]
+      .filter(Boolean)
+      .join(" "),
 
-        passportUrl: student.passportUrl,
+    passportUrl: student.passportUrl || "",
 
-        class: {
-          mainClass: student.realClass,
-          arm: student.realClassArm,
-          classId: student.realClassNow?.classId,
-          department: student.realDepartment,
-        },
+    class: {
+      mainClass: student.realClass,
+      arm: student.realClassArm,
+      classId: student.realClassId,
+      department: student.realDepartment,
+    },
 
-        status: student.status,
-      }));
+    realClassNow: student.realClassNow,
 
-      return res.status(200).json({
-        success: true,
-        userType: "parent",
+    // Current fees
+    currentFee: student.currentFee || [],
 
-        parent: {
-          _id: parent._id,
-          regNo: parent.regNo,
-          fullname: parent.fullname,
-          email: parent.email,
-          phone: parent.phone,
+    status: student.status,
+  }));
 
-          wardCount: studentList.length,
+  // ---------------------------------------------------------
+  // Summary
+  // ---------------------------------------------------------
+  const totalFees = studentList.reduce(
+    (sum, student) =>
+      sum +
+      student.currentFee.reduce(
+        (feeSum, fee) => feeSum + (fee.total || 0),
+        0
+      ),
+    0
+  );
 
-          wards: studentList,
-        },
+  const totalPaid = studentList.reduce(
+    (sum, student) =>
+      sum +
+      student.currentFee.reduce(
+        (feeSum, fee) => feeSum + (fee.paid || 0),
+        0
+      ),
+    0
+  );
 
-        // Convenient dashboard summary
-        summary: {
-          totalWards: studentList.length,
+  const totalBalance = totalFees - totalPaid;
 
-          activeWards: studentList.filter(
-            (student) => student.status === "active"
-          ).length,
+  // ---------------------------------------------------------
+  // Send parent dashboard data
+  // ---------------------------------------------------------
+  const settingz = await GeneralSettings.findOne({_id: "general-setup"});
+  return res.status(200).json({
+    success: true,
+    userType: "parent",
+    isParent: true,
+    settings: settingz.setUps,
+    parent: {
+      _id: parent._id,
+      regNo: parent.regNo,
+      fullname: parent.fullname,
+      contactMail: parent.contactMail,
+      contactPhone: parent.contactPhone,
+      occupation: parent.occupation,
+      address: parent.address,
 
-          // Placeholder for future fee calculations
-          totalFees: 0,
-          totalPaid: 0,
-          totalBalance: 0,
-        },
+      wardCount: studentList.length,
+      wards: studentList,
+    },
 
-        msg: `Welcome back, ${parent.fullname}`,
-      });
-    }
+    summary: {
+      totalWards: studentList.length,
 
+      activeWards: studentList.filter(
+        (student) => student.status === "active"
+      ).length,
+
+      totalFees,
+      totalPaid,
+      totalBalance,
+    },
+
+    msg: `Welcome back, ${parent.fullname}`,
+  });
+}
     // =========================================================
     // 5. UNKNOWN / UNSUPPORTED USER TYPE
     // =========================================================
@@ -559,5 +612,10 @@ router.get("/user/profile-view/:id", async (req, res) => {
     res.status(500).json({ msg: "An error occurred on the server." });
   }
 })
+
+//validate user
+router.get("/user/auth", userAuth)
+router.get("/user/admin-roles", adminPermissionAuths)
+
 
 export default router;

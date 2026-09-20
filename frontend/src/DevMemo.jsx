@@ -166,7 +166,7 @@ function DeveloperNotice() {
 
             <p className="text-xs text-gray-500 mt-3">
               Use the demo account to explore the administrative features
-              currently available.
+              currently available. You can also create your own staff account. Parent Portal not yet developed.
             </p>
           </div>
 
@@ -179,12 +179,13 @@ function DeveloperNotice() {
             <div className="grid sm:grid-cols-2 gap-2">
               {[
                 "Creating an account and logging in",
-                "Admin Portal",
+                "Admin Portal, Fee Mgt. Portal",
+                "Posting and Viewing blog/Updates",
                 "Approving users",
                 "Assigning staff to duties",
                 "Enrolling staff",
-                "Enrolling students",
-                "Managing students",
+                "Enrolling and Managing students",
+                "Adding Subjects and Classes",
                 "Generating student ID cards",
                 "Checking/Downloading Results",
                 "Admin Result Checker Pin",
@@ -341,3 +342,5 @@ function DeveloperNotice() {
 }
 
 export default DeveloperNotice;
+
+

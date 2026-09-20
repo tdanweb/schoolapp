@@ -26,7 +26,7 @@ const stuFee = new mongoose.Schema({
 const studentSchema = new mongoose.Schema(
   {
     // =========================
-    // IDENTIFICATION
+    // IDENTIF//ICATION
     // =========================
 
     admissionNo: {
@@ -35,7 +35,6 @@ const studentSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
-
     regNo: {
       type: String,
       required: true,
@@ -172,6 +171,13 @@ const studentSchema = new mongoose.Schema(
     club_house: {
       type: String, default: "Academic/Blue"
     },
+
+    parentAttached: String, //just regNo
+    parentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Parent"
+    },
+
     previousSchools: 
         {
           schoolName: {
@@ -319,6 +325,50 @@ const studentSchema = new mongoose.Schema(
   }
 );
 
+const staffDocumentSchema = new mongoose.Schema(
+  {
+    staffId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Login",
+      required: true,
+    },
+
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    type: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    url: {
+      type: String,
+      required: true,
+    },
+
+    pubId: {
+      type: String,
+      required: true,
+    },
+
+    fileType: {
+      type: String,
+      required: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+export const  StaffDocument =  new mongoose.model(
+  "StaffDocument",
+  staffDocumentSchema
+);
 const Student = mongoose.model("Student", studentSchema);
 
 export default Student;
