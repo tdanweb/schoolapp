@@ -1,9 +1,12 @@
+export const mainApi = import.meta.env.VITE_MAIN_API;
+
+
 const API_URL = "http://localhost:5000/api"
 import axios from "axios"
 
 export {API_URL}
 
-export const mainApi = `http://localhost:5000/api`
+export const mainApi2 = `http://localhost:5000/api`
 
 const trueAPI = axios.create({
     baseURL: API_URL,
