@@ -84,7 +84,7 @@ export default function TourSchool() {
       title: "School Library",
       description:
         "A quiet and resourceful space where students can read, research, study and develop a lasting love for learning.",
-      image: "/images/tour/library.jpg",
+      image: "/library.jpg",
     },
     {
       id: "ict",
@@ -112,7 +112,7 @@ export default function TourSchool() {
       title: "Cafeteria",
       description:
         "Our cafeteria provides a comfortable environment where students can enjoy meals and interact with one another.",
-      image: "/images/tour/cafeteria.jpg",
+      image: "/cafeteria.jpg",
     },
     {
       id: "campus",
