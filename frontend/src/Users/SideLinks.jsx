@@ -24,6 +24,7 @@ import {
   FaKey,
   FaTablet,
   FaList,
+  FaUserPlus,
 } from "react-icons/fa";
 
 export function AllSideBarLinks({
@@ -96,6 +97,7 @@ export function AllSideBarLinks({
     return(
       <>
          <SideLink name="Home" abb="home" icon={<FaHome size={18} />} url="/app/user/home" />
+         <SideLink name="Enrol Self" abb="staff-self-enrol" icon={<FaUserPlus size={18} />} url="/app/user/staff-self-enrol" />
          <SideLink name="Upload Results" abb="results" icon={<FaClipboardCheck size={18} />} url="/app/user/results" />
          <SideLink name="Class List" abb="list" icon={<FaUsers size={18} />} url="/app/user/stu-list" />
          <SideLink name="My Timetable" abb="list" icon={<FaList size={18} />} url="/app/user/timetable" />

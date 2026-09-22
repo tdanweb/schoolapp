@@ -125,7 +125,7 @@ async function getDashboardData(){
   } catch (error) {
     console.log("Errorr...")
     if(error.response){
-      setAlertMsg("DASH-HOME: " + error.response.data.msg)
+      setAlertMsg("HOME: " + error.response.data.msg)
     } else{
       setAlertMsg("Unable to fetch user Data... Server Error")
     }
@@ -138,32 +138,6 @@ async function getDashboardData(){
         getAdminDashboardData(); //strictly admin view...
     }, []);
 
-    const cards = [
-        {
-            title: "Students",
-            value: "1,245",
-            icon: <FaUserGraduate size={28} />,
-            color: "bg-blue-500",
-        },
-        {
-            title: "Staff",
-            value: "82",
-            icon: <FaUsers size={28} />,
-            color: "bg-green-500",
-        },
-        {
-            title: "Revenue",
-            value: "₦3.5M",
-            icon: <FaMoneyBillWave size={28} />,
-            color: "bg-yellow-500",
-        },
-        {
-            title: "Attendance",
-            value: "97%",
-            icon: <FaClipboardList size={28} />,
-            color: "bg-purple-500",
-        },
-    ];
 
     //for each dashboard add a data props, depending on data sent from backend
     //for each component set data that aligns with the component.....
@@ -202,7 +176,11 @@ async function getDashboardData(){
        {user?.role === "student" && <StudentDashboard studentData={userDATA}/>}
        {user?.role==="parent" && <ParentDashboard parentData={userDATA}/>}
        {/*user?.role === "parent" && <ParentDashboardHome/>   */}
-       {(user?.role === "staff" || user?.role==="admin2" || user?.role === "admin" || user?.role === "chief-admin") && <StaffDashboard staffData={userDATA} adminData={adminData || null}/>}
+       {(user?.role === "staff" || user?.role==="admin2" || user?.role === "admin" || user?.role === "chief-admin") && 
+        
+        ( userDATA ? <StaffDashboard staffData={userDATA} adminData={adminData || null}/> : <EnrolStaff userRegNo={user?.user}/> )
+         
+      }
 
         <div className="my-4 w-full p-4 bg-slate-700/60">
           
@@ -649,7 +627,10 @@ export default function UserPortals() {
         {/* Logout */}
 
         <div className="shrink-0 p-3 bg-gray-800 border-t border-slate-700">
-
+          <div className="text-sm text-blue-400">
+            {user?.fullname} 
+            <small className="display-block block text-orange-300 my-2">{user?.user}</small>
+          </div>
           <button
             className="w-full flex items-center justify-between gap-4
             px-3 py-3 rounded-lg
@@ -657,6 +638,7 @@ export default function UserPortals() {
             transition"
             onClick={logOut}
           >
+
             <span>LOGOUT</span>
 
             <FaSignOutAlt size={20} />

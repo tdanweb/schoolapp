@@ -33,10 +33,10 @@ const initialStaffProfile = {
 };
 
 
-export default function EnrolStaff() {
+export default function EnrolStaff({userRegNo}) {
    //first load staff reg no:
   const [openLoad, setOpenLoad] = useState(true);
-  const [id, setId] = useState("");
+  const [id, setId] = useState(userRegNo || "");
 
 
   const [staffInfo, setStaffInfo] = useState(initialStaffProfile);

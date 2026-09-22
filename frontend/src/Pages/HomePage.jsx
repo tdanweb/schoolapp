@@ -5,7 +5,7 @@ import { animate, motion } from "framer-motion"
 import { ImageSlider } from "../components/Media"
 import { useEffect, useState } from "react"
 import SchoolFooter from "../components/Footer"
-import { FaBlog, FaEdit, FaMicrophone, FaPen, FaPlusCircle, FaSpeakerDeck, FaTimes, FaTrash, FaUser, FaUserCircle } from "react-icons/fa"
+import { FaBlog, FaEdit, FaMicrophone, FaPen, FaPlusCircle, FaSpeakerDeck, FaTimes, FaTrash, FaUser, FaUserCheck, FaUserCircle } from "react-icons/fa"
 import { naira } from "../staticFiles"
 import { mainApi } from "../api"
 import axios from "axios"
@@ -89,11 +89,14 @@ function Headlinks({ user }) {
       name: "Academics",
       icon: faChildren,
     },
+
+    /*
     {
       link: "/app/user",
       name: "Portal",
       icon: faUserCircle,
     },
+    */
   ];
 
   return (
@@ -173,6 +176,7 @@ function Headlinks({ user }) {
 export {Headlinks}
 
 function HomeView(){
+  const navigate = useNavigate()
     //arrays
     //getUser
     const [user, setUser] = useState(null);
@@ -181,10 +185,10 @@ function HomeView(){
    function getUser(){
     const user = JSON.parse(localStorage.getItem("logged-user"));   
     if(user){
-        console.log(user)
         setUser(user)
     } else {
         //
+        navigate("/sign-in")
     }
     }
 
@@ -352,7 +356,76 @@ function HomeView(){
        {/* <h4 className={heads}>Quick Updates <FontAwesomeIcon icon={faBullhorn} className="text-teal-700"/></h4> */}
         <ImageSlider arr={slides} time={8000}/>
     </div>
+
+
+    {/* PortAL lOGIN CARD */}
+
+<div className="w-full max-w-md mx-auto bg-white border border-gray-200 rounded-2xl shadow-sm p-5">
+  
+  {/* Header */}
+  <div className="flex items-center gap-4">
+    <div className="w-16 h-16 rounded-full bg-yellow-50 border border-yellow-200 flex items-center justify-center overflow-hidden">
+      <img
+        src="/crest.png"
+        alt="School Crest"
+        className="w-12 h-12 object-contain"
+      />
+    </div>
+
+    <div className="flex-1">
+      <h2 className="text-lg font-bold text-gray-800">
+        Access My Portal
+      </h2>
+
+      <p className="text-sm text-gray-500">
+        Welcome back, {user?.fullname}
+      </p>
+    </div>
+
+    <FaUserCheck className="text-blue-600 text-2xl" />
+  </div>
+
+  {/* User Information */}
+  <div className="mt-5 bg-gray-50 rounded-xl p-4 space-y-3">
     
+    <div className="flex justify-between items-center">
+      <span className="text-sm text-gray-500">Name</span>
+      <span className="text-sm font-semibold text-gray-800">
+        {user?.fullname}
+      </span>
+    </div>
+
+    <div className="flex justify-between items-center">
+      <span className="text-sm text-gray-500">Role</span>
+      <span className="text-sm font-semibold text-blue-600 capitalize">
+        {user?.role}
+      </span>
+    </div>
+
+    <div className="flex justify-between items-center">
+      <span className="text-sm text-gray-500">Reg. No.</span>
+      <span className="text-sm font-semibold text-gray-800">
+        {user?.user}
+      </span>
+    </div>
+
+  </div>
+
+  {/* Access Button */}
+  <Link
+    to="/app/user"
+    className="mt-5 w-full flex items-center justify-center gap-2
+               bg-blue-600 hover:bg-blue-700 text-white
+               py-3 rounded-xl font-semibold text-sm
+               transition-all duration-200 shadow-sm hover:shadow-md"
+  >
+    <FaUserCheck />
+    Access My Portal
+  </Link>
+
+</div>
+
+
     {/*Posted Blogs & News & Topics*/}
     <div className="grid grid-cols-1 gap-x-3 gap-y-6 my-10">
       {
@@ -377,9 +450,9 @@ function HomeView(){
 </div>
       }
 
-        <div className="p-4 rounded-sm grid grid-cols-1 text-xl md:text-2xl text-orange-800 font-bold">
+        <div className="p-4 rounded-sm grid grid-cols-1 text-lg md:text-2xl text-orange-800 font-bold">
 
-            <div  className="my-2 shadow-lg py-1 center items-center flex flex-row text-center gap-3 px-4 font-bold text-orange-600">
+            <div  className="my-2 shadow-lg py-1 center items-center flex flex-row text-center gap-3 px-4 font-bold text-orange-700">
                 <FaBlog size={22}/>
                 TOP TOPICS/UPDATES 
                {  (user?.role === "admin" || user?.role === "chief-admin") 

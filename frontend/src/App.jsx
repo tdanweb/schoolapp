@@ -101,6 +101,7 @@ function App() {
               <Route path="users"
                element={ <AdminAuth permission={"canApproveUser"}> <ViewUser/> </AdminAuth>}/>     
               <Route path="staff-enrol" element={<EnrolStaff/>}/>
+              <Route path="staff-self-enrol" element={<EnrolStaff userRegNo={JSON.parse(localStorage.getItem("logged-user")).user}/>}/>
               <Route path="staff-roles" element={<SetStaffRoles/>}/>
               <Route path="stu-reg"
                element={ <AdminAuth permission={"canManageStudents"}> <StudentRegistrationForm/> </AdminAuth>}/>
