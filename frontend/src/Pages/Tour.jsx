@@ -112,7 +112,7 @@ export default function TourSchool() {
       title: "Cafeteria",
       description:
         "Our cafeteria provides a comfortable environment where students can enjoy meals and interact with one another.",
-      image: "/cafeteria.jpg",
+      image: "/cafteria.jpg",
     },
     {
       id: "campus",

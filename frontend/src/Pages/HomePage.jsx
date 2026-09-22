@@ -377,10 +377,10 @@ function HomeView(){
 </div>
       }
 
-        <div className="p-4 rounded-sm grid grid-cols-1 text-2xl text-orange-800 font-bold">
+        <div className="p-4 rounded-sm grid grid-cols-1 text-xl md:text-2xl text-orange-800 font-bold">
 
             <div  className="my-2 shadow-lg py-1 center items-center flex flex-row text-center gap-3 px-4 font-bold text-orange-600">
-                <FaBlog size={28}/>
+                <FaBlog size={22}/>
                 TOP TOPICS/UPDATES 
                {  (user?.role === "admin" || user?.role === "chief-admin") 
                     && <button onClick={() =>

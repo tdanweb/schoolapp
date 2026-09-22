@@ -49,6 +49,7 @@ import { TermInfo } from "./GeneralSetting";
 import { StaffDashboard } from "../DashBoards";
 import StudentDashboard from "../Student/MyDashBoard";
 import ParentDashboard from "../Parent/ParentDash";
+import EnrolStaff from "./StaffEnrol";
 
 export function DashboardHome() {
     const [info, setInfo] = useState(null);
@@ -398,6 +399,7 @@ export default function UserPortals() {
         if(msg==="The User Profile is unapproved or not found!"){
           navigate("/sign-in");
         }
+        if(msg==="The Staff Profile is unapproved or not found!") return <EnrolStaff/>
         } else {
           setAlertMsg("Network Error, Cannot Get User Credentials...");
         }

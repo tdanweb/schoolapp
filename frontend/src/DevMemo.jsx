@@ -4,6 +4,7 @@ import {
   FaEnvelope,
   FaWhatsapp,
   FaPlayCircle,
+  FaLinkedin,
 } from "react-icons/fa";
 
 function DeveloperNotice() {
@@ -76,7 +77,23 @@ function DeveloperNotice() {
           <FaInstagram size={15} />
         </a>
 
+        <a
+          href="#"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:text-white"
+          aria-label="LinkedIn"
+        >
+          <FaLinkedin size={15} />
+        </a>
+
+        <small>
+          <b>
+            Betiku T. Dan
+          </b>
+        </small>
       </div>
+     
     </div>
 
   </div>
@@ -113,7 +130,7 @@ function DeveloperNotice() {
               designed as a portfolio project for real-world school use. It is
               built to bring important school activities into one organized
               digital platform, covering administration, students, staff,
-              attendance, results, fees, admissions and other school operations.
+              attendance, results, fees, admissions and others.
             </p>
           </div>
 
@@ -130,8 +147,7 @@ function DeveloperNotice() {
             </p>
 
             <p className="text-sm leading-6 text-yellow-800 mt-2">
-              Some available features may not yet be perfect, and you may
-              encounter areas that are still being refined. Development and
+              Some available features may not yet be perfect. However, development and
               improvements are actively ongoing.
             </p>
           </div>
@@ -166,7 +182,7 @@ function DeveloperNotice() {
 
             <p className="text-xs text-gray-500 mt-3">
               Use the demo account to explore the administrative features
-              currently available. You can also create your own staff account. Parent Portal not yet developed.
+              currently available. You can also create your own staff or parent account. 
             </p>
           </div>
 

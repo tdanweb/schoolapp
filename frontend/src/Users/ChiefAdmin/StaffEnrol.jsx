@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { ItemHolder } from "./GeneralSetting";
 //import { FormSection, Input, Select } from "../StudentResgistration";
 import { Input, Select, FormSection } from "./StudentRegistration";
-import { FaUserCircle,  FaGraduationCap,  FaFileAlt,  FaPlusCircle,  FaTrash,  FaSave,  FaTimes} from "react-icons/fa";
+import { FaUserCircle,  FaGraduationCap,  FaFileAlt,  FaPlusCircle,  FaTrash,  FaSave,  FaTimes, FaIdCard} from "react-icons/fa";
 import { mainApi } from "../../api";
 import StaffManagementForm from "./AssignStaff";
 import { PopUp } from "../../components/LogInForm";
@@ -246,9 +246,25 @@ export default function EnrolStaff() {
             message={<div className="p-5 shadow-lg rounded-md bg-white ">
                <p className="text-2xl font-poppins font-bold my-5 text-blue-900">GET STAFF BY REG NO</p>
                <hr/>
-               <Input label={"Enter Reg NO: "} placeholder={"E.g SCH2026"}
-                  onChange={(e) => setId(e.target.value)} 
-                  value={id}/>
+<div className="w-full">
+  <label className="block text-sm font-medium text-gray-700 mb-2">
+    Enter Staff Reg. No.
+  </label>
+
+  <div className="relative">
+    <FaIdCard className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+
+    <input
+      type="text"
+      placeholder="E.g. SCH2026"
+      value={id}
+      onChange={(e) => setId(e.target.value)}
+      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg outline-none
+                 focus:border-blue-500 focus:ring-2 focus:ring-blue-100
+                 transition-all text-sm bg-white"
+    />
+  </div>
+</div>
                <div className="my-5 flex flex-row justify-between items-center">
                   <div><button onClick={() => setOpenLoad(false)} className={`${btn} flex flex-row gap-5 bg-blue-800 `}>Cancel <FaTimes size={24}/> </button></div>
                   <button onClick={loadStaff} className={`${btn} flex flex-row gap-5 bg-slate-800`}>Get Staff <FiDownload size={24}/></button>

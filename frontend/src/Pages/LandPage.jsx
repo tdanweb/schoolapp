@@ -281,8 +281,8 @@ export default function LandingPage() {
         </motion.div>
       </section>
 {showDevMemo && (
-  <div className="fixed inset-0 z-120 flex items-center justify-center bg-black/60 p-4">
-    <div className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-xl">
+  <div className="fixed inset-0 z-120  items-center justify-center bg-black/60 p-4">
+    <div className="relative w-full flex top-7 bottom-6 flex top-10 bottom-10 md:left-40 md:right-40 max-w-3xl max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-xl">
 
       {/* Close */}
       <button
